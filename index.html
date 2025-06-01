@@ -3,60 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beyond the Horizon - Travel Planning Made Easy</title>
+    <title>Beyond the Horizon - One Time Solution to All Weathers and Itineraries</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+            color: #333;
         }
-
+        
         .container {
-            max-width: 450px;
+            max-width: 500px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.95);
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             overflow: hidden;
-            transition: all 0.3s ease;
         }
-
-        .auth-header {
-            background: linear-gradient(135deg, #ff6b6b, #ffa726);
-            color: white;
+        
+        .login-container {
+            max-width: 400px;
+            margin: 10vh auto;
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 2rem;
             text-align: center;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            color: white;
             padding: 2rem;
+            text-align: center;
         }
-
-        .auth-header h1 {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-            font-weight: 700;
-        }
-
-        .auth-header p {
-            opacity: 0.9;
-            font-size: 1rem;
-        }
-
-        .auth-content {
+        
+        .content {
             padding: 2rem;
+            max-height: 70vh;
+            overflow-y: auto;
         }
-
+        
         .form-group {
-            margin-bottom: 1.5rem;
-            position: relative;
+            margin-bottom: 1rem;
         }
-
-        .form-group input, .form-group select, .form-group textarea {
+        
+        input, textarea, select {
             width: 100%;
             padding: 1rem;
             border: 2px solid #e1e8ed;
@@ -64,800 +59,672 @@
             font-size: 1rem;
             transition: all 0.3s ease;
             background: #f8fafc;
-            font-family: inherit;
         }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+        
+        input:focus, textarea:focus, select:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #0072ff;
             background: white;
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+            box-shadow: 0 8px 25px rgba(0,114,255,0.15);
         }
-
+        
         .btn {
-            width: 100%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
             color: white;
             border: none;
-            padding: 1rem 2rem;
+            padding: 0.8rem 1.5rem;
             border-radius: 12px;
-            font-size: 1.1rem;
+            font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-bottom: 1rem;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            display: inline-block;
         }
-
+        
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 30px rgba(0,114,255,0.3);
         }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn-small {
-            width: auto;
-            padding: 0.5rem 1rem;
-            font-size: 0.9rem;
-            margin-bottom: 0;
-        }
-
-        .toggle-text {
-            text-align: center;
-            color: #64748b;
-            margin-top: 1rem;
-        }
-
-        .toggle-link {
-            color: #667eea;
-            cursor: pointer;
-            font-weight: 600;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .toggle-link:hover {
-            color: #764ba2;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        /* Main App Styles */
-        .app-header {
-            background: linear-gradient(135deg, #00c6ff, #0072ff);
-            color: white;
-            padding: 1.5rem 2rem;
-            position: relative;
-        }
-
-        .user-welcome {
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        .user-subtitle {
-            opacity: 0.9;
-            margin-top: 0.5rem;
-        }
-
-        .logout-btn {
-            position: absolute;
-            top: 1.5rem;
-            right: 2rem;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-
-        .logout-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .tabs {
-            display: flex;
+        
+        .btn-small { padding: 0.5rem 1rem; font-size: 0.8rem; }
+        .btn-success { background: linear-gradient(135deg, #10b981, #059669); }
+        .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        
+        .trip-card {
             background: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .tab-btn {
-            flex: 1;
-            background: transparent;
-            border: none;
-            padding: 1rem;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-            color: #64748b;
-            transition: all 0.3s ease;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #0072ff;
             position: relative;
         }
-
-        .tab-btn.active {
+        
+        .trip-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
             color: #0072ff;
         }
-
-        .tab-btn.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(135deg, #00c6ff, #0072ff);
+        
+        .trip-meta {
+            color: #64748b;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
         }
-
-        .tab-btn:hover:not(.active) {
-            background: #f8fafc;
-            color: #475569;
+        
+        .feature-card {
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
         }
-
-        .tab-content {
-            padding: 2rem;
-            min-height: 300px;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .dashboard-grid {
+        
+        .stats {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
-
+        
         .stat-card {
             background: linear-gradient(135deg, #ff9a9e, #fecfef);
             color: white;
-            padding: 1.5rem;
-            border-radius: 15px;
+            padding: 1.2rem;
+            border-radius: 12px;
             text-align: center;
-            box-shadow: 0 8px 25px rgba(255, 154, 158, 0.3);
         }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-label {
-            opacity: 0.9;
-            font-size: 0.9rem;
-        }
-
-        .quick-action {
+        
+        .stat-number { font-size: 1.5rem; font-weight: 700; }
+        
+        .hidden { display: none; }
+        
+        .tabs {
+            display: flex;
             background: white;
-            border: 2px solid #e1e8ed;
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        
+        .tab {
+            min-width: 80px;
+            background: transparent;
+            border: none;
+            padding: 0.8rem;
             cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .quick-action:hover {
-            border-color: #0072ff;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 114, 255, 0.15);
-        }
-
-        .quick-action-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #00c6ff, #0072ff);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.2rem;
-        }
-
-        .itinerary-item {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            border-left: 4px solid #00c6ff;
-            position: relative;
-        }
-
-        .itinerary-date {
-            font-weight: 600;
-            color: #0072ff;
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .itinerary-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .itinerary-description {
+            font-size: 0.85rem;
             color: #64748b;
-            font-size: 0.9rem;
-        }
-
-        .delete-btn {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: #ff4757;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            cursor: pointer;
-            font-size: 0.8rem;
             transition: all 0.3s ease;
+            text-align: center;
         }
-
-        .delete-btn:hover {
-            background: #ff3742;
-            transform: scale(1.1);
+        
+        .tab.active {
+            color: #0072ff;
+            border-bottom: 3px solid #0072ff;
         }
-
-        .add-btn {
-            background: linear-gradient(135deg, #00c6ff, #0072ff);
-            color: white;
-            border: none;
-            padding: 1rem;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            box-shadow: 0 8px 25px rgba(0, 114, 255, 0.3);
-            transition: all 0.3s ease;
-        }
-
-        .add-btn:hover {
-            transform: scale(1.1);
-        }
-
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
+        
+        .translator-box {
             background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            width: 90%;
-            max-width: 400px;
-            max-height: 80vh;
-            overflow-y: auto;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-
-        .modal-header {
+        
+        .budget-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 0.8rem;
+            border-bottom: 1px solid #e1e8ed;
+            background: #f8fafc;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+        }
+        
+        .budget-item:last-child {
+            border-bottom: none;
+        }
+        
+        .budget-overview {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
             margin-bottom: 1.5rem;
         }
-
-        .modal-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #1e293b;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #64748b;
-        }
-
-        .weather-card {
-            background: linear-gradient(135deg, #a8edea, #fed6e3);
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
+        
+        .budget-stat {
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
             text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-
-        .weather-temp {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .destination-card {
+        
+        .budget-stat.positive { border-left: 4px solid #10b981; }
+        .budget-stat.negative { border-left: 4px solid #ef4444; }
+        .budget-stat.neutral { border-left: 4px solid #0072ff; }
+        
+        .expense-category {
             background: white;
             border-radius: 12px;
             padding: 1rem;
             margin-bottom: 1rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-
-        .destination-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        .destination-name {
-            font-weight: 600;
-            font-size: 1.1rem;
+        
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #0072ff;
         }
-
-        .destination-description {
-            color: #64748b;
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e1e8ed;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            transition: width 0.3s ease;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
             font-size: 0.9rem;
         }
-
-        .search-box {
-            position: sticky;
-            top: 0;
+        
+        .alert-warning {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            color: #92400e;
+        }
+        
+        .alert-danger {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            color: #991b1b;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            color: #065f46;
+        }
+        
+        .expense-form {
             background: white;
-            padding: 1rem 0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+        
+        .local-tip {
+            background: #f0f9ff;
+            border-left: 4px solid #0ea5e9;
+            padding: 1rem;
             margin-bottom: 1rem;
-            border-bottom: 1px solid #e1e8ed;
+            border-radius: 8px;
         }
-
-        @media (max-width: 480px) {
-            .container {
-                margin: 10px;
-                border-radius: 15px;
-            }
-            
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .add-btn {
-                bottom: 20px;
-                right: 20px;
-            }
+        
+        .empty-state {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: #64748b;
         }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #10b981;
+        
+        .user-info {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255,255,255,0.2);
             color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-            z-index: 1001;
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
         }
-
-        .notification.show {
-            transform: translateX(0);
+        
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            margin-left: 0.5rem;
+        }
+        
+        .delete-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 480px) {
+            .stats { grid-template-columns: 1fr; }
+            .budget-overview { grid-template-columns: 1fr; }
+            .container, .login-container { margin: 10px; }
+            .tabs { font-size: 0.75rem; }
         }
     </style>
 </head>
 <body>
-    <!-- Auth Screen -->
-    <div id="auth-screen" class="container fade-in">
-        <div class="auth-header">
-            <h1>🌅 Beyond the Horizon</h1>
-            <p>A one-time solution for all weathers and itineraries</p>
-        </div>
+    <!-- Login Page -->
+    <div id="login-page" class="login-container">
+        <h1 style="color: #0072ff; margin-bottom: 0.5rem;">🌅 Beyond the Horizon</h1>
+        <p style="color: #64748b; margin-bottom: 2rem;">One Time Solution to All Weathers and Itineraries</p>
         
-        <!-- Sign In Form -->
-        <div id="signin-form" class="auth-content">
-            <form id="signin-form-element">
-                <div class="form-group">
-                    <input type="email" placeholder="Email address" required>
-                </div>
-                <div class="form-group">
-                    <input type="password" placeholder="Password" required>
-                </div>
-                <button type="submit" class="btn">Sign In</button>
-            </form>
-            <div class="toggle-text">
-                Don't have an account? 
-                <span class="toggle-link" onclick="toggleAuthMode()">Create one</span>
+        <form id="login-form">
+            <div class="form-group">
+                <input type="email" id="email" placeholder="Email Address" required>
             </div>
-        </div>
+            <div class="form-group">
+                <input type="password" id="password" placeholder="Password" required>
+            </div>
+            <button type="submit" class="btn" style="width: 100%;">Login</button>
+        </form>
         
-        <!-- Sign Up Form -->
-        <div id="signup-form" class="auth-content hidden">
-            <form id="signup-form-element">
-                <div class="form-group">
-                    <input type="text" name="name" placeholder="Full Name" required>
-                </div>
-                <div class="form-group">
-                    <input type="email" placeholder="Email address" required>
-                </div>
-                <div class="form-group">
-                    <input type="password" placeholder="Create Password" required>
-                </div>
-                <button type="submit" class="btn">Create Account</button>
-            </form>
-            <div class="toggle-text">
-                Already have an account? 
-                <span class="toggle-link" onclick="toggleAuthMode()">Sign in</span>
-            </div>
+        <p style="margin-top: 1rem; color: #64748b; font-size: 0.9rem;">
+            Don't have an account? <a href="#" onclick="showSignup()" style="color: #0072ff;">Sign up</a>
+        </p>
+        
+        <!-- Quick Login for Demo -->
+        <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #e1e8ed;">
+            <p style="color: #64748b; font-size: 0.8rem; margin-bottom: 1rem;">Demo Login:</p>
+            <button class="btn btn-small" onclick="quickLogin()">Quick Login as Demo User</button>
         </div>
     </div>
 
     <!-- Main App -->
     <div id="main-app" class="container hidden">
-        <div class="app-header">
-            <button class="logout-btn" onclick="logout()">Logout</button>
-            <div class="user-welcome">Welcome back, <span id="user-name">Traveler</span>!</div>
-            <div class="user-subtitle">Ready for your next adventure?</div>
+        <div class="header">
+            <div class="user-info">
+                Welcome, <span id="user-name">User</span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+            <h1>🌅 Beyond the Horizon</h1>
+            <p>One Time Solution to All Weathers and Itineraries</p>
         </div>
         
         <div class="tabs">
-            <button class="tab-btn active" onclick="showTab('dashboard')">🏠 Dashboard</button>
-            <button class="tab-btn" onclick="showTab('itinerary')">📋 Itinerary</button>
-            <button class="tab-btn" onclick="showTab('navigation')">🗺️ Explore</button>
+            <button class="tab active" onclick="showTab('dashboard')">🏠</button>
+            <button class="tab" onclick="showTab('trips')">✈️</button>
+            <button class="tab" onclick="showTab('add')">➕</button>
+            <button class="tab" onclick="showTab('budget')">💰</button>
+            <button class="tab" onclick="showTab('translate')">🌐</button>
+            <button class="tab" onclick="showTab('navigate')">🗺️</button>
+            <button class="tab" onclick="showTab('local')">🏘️</button>
         </div>
         
-        <!-- Dashboard Tab -->
-        <div id="dashboard-tab" class="tab-content">
-            <div class="dashboard-grid">
+        <!-- Dashboard -->
+        <div id="dashboard" class="content">
+            <div class="stats">
                 <div class="stat-card">
-                    <div class="stat-number" id="trips-count">0</div>
-                    <div class="stat-label">Trips Planned</div>
+                    <div class="stat-number" id="trip-count">0</div>
+                    <div>Active Trips</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number" id="places-count">0</div>
-                    <div class="stat-label">Places to Visit</div>
+                    <div class="stat-number" id="total-budget">₹0</div>
+                    <div>Total Budget</div>
                 </div>
             </div>
             
-            <h3 style="margin-bottom: 1rem; color: #1e293b;">Quick Actions</h3>
-            <div class="quick-action" onclick="openNewTripModal()">
-                <div class="quick-action-icon">✈️</div>
-                <div>
-                    <div style="font-weight: 600;">Plan New Trip</div>
-                    <div style="color: #64748b; font-size: 0.9rem;">Start planning your next adventure</div>
-                </div>
+            <div class="feature-card">
+                <h4>🤖 AI Assistant</h4>
+                <p>Smart rescheduling and personalized recommendations</p>
+                <button class="btn btn-small" onclick="aiReschedule()">Auto Reschedule</button>
             </div>
-            
-            <div class="quick-action" onclick="showTab('navigation'); generateDestinations()">
-                <div class="quick-action-icon">🌍</div>
-                <div>
-                    <div style="font-weight: 600;">Discover Destinations</div>
-                    <div style="color: #64748b; font-size: 0.9rem;">Explore trending travel spots</div>
-                </div>
-            </div>
-            
-            <div class="quick-action" onclick="showWeather()">
-                <div class="quick-action-icon">🌤️</div>
-                <div>
-                    <div style="font-weight: 600;">Check Weather</div>
-                    <div style="color: #64748b; font-size: 0.9rem;">Get weather updates for your trips</div>
+        </div>
+        
+        <!-- Trips -->
+        <div id="trips" class="content hidden">
+            <div id="trips-list">
+                <div class="empty-state">
+                    <div style="font-size: 2rem;">✈️</div>
+                    <h3>No trips yet</h3>
+                    <button class="btn" onclick="showTab('add')">Plan First Trip</button>
                 </div>
             </div>
         </div>
         
-        <!-- Itinerary Tab -->
-        <div id="itinerary-tab" class="tab-content hidden">
-            <h3 style="margin-bottom: 1.5rem; color: #1e293b;">Your Upcoming Adventures</h3>
-            <div id="itinerary-list">
-                <!-- Itineraries will be populated here -->
-            </div>
-            <button class="add-btn" onclick="openNewTripModal()">+</button>
-        </div>
-        
-        <!-- Navigation/Explore Tab -->
-        <div id="navigation-tab" class="tab-content hidden">
-            <div class="search-box">
-                <input type="text" id="destination-search" placeholder="Search destinations..." style="width: 100%; padding: 0.8rem; border: 2px solid #e1e8ed; border-radius: 10px;">
-            </div>
-            <div id="destinations-list">
-                <!-- Destinations will be populated here -->
-            </div>
-        </div>
-    </div>
-
-    <!-- New Trip Modal -->
-    <div id="new-trip-modal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Plan New Trip</h3>
-                <button class="close-btn" onclick="closeModal('new-trip-modal')">&times;</button>
-            </div>
-            <form id="new-trip-form">
+        <!-- Add Trip -->
+        <div id="add" class="content hidden">
+            <form id="trip-form">
                 <div class="form-group">
-                    <input type="text" name="destination" placeholder="Destination (e.g., Paris, France)" required>
+                    <input type="text" id="destination" placeholder="Destination" required>
                 </div>
                 <div class="form-group">
-                    <input type="date" name="startDate" required>
+                    <input type="date" id="start-date" required>
+                    <input type="date" id="end-date" required style="margin-top: 0.5rem;">
                 </div>
                 <div class="form-group">
-                    <input type="date" name="endDate" required>
+                    <input type="number" id="budget" placeholder="Budget (₹)" min="0">
                 </div>
-                <div class="form-group">
-                    <textarea name="description" placeholder="What do you want to do there?"></textarea>
-                </div>
-                <button type="submit" class="btn">Add Trip</button>
+                <button type="submit" class="btn">🚀 Create Trip</button>
             </form>
+            
+            <h4>Popular Destinations</h4>
+            <button class="btn btn-small" onclick="quickAdd('Goa, India', 15000)">🏖️ Goa</button>
+            <button class="btn btn-small" onclick="quickAdd('Kerala, India', 20000)">🌴 Kerala</button>
+            <button class="btn btn-small" onclick="quickAdd('Rajasthan, India', 25000)">🏰 Rajasthan</button>
+            <button class="btn btn-small" onclick="quickAdd('Himachal Pradesh, India', 18000)">🏔️ Himachal</button>
         </div>
-    </div>
-
-    <!-- Weather Modal -->
-    <div id="weather-modal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Weather Updates</h3>
-                <button class="close-btn" onclick="closeModal('weather-modal')">&times;</button>
+        
+        <!-- Enhanced Budget Management -->
+        <div id="budget" class="content hidden">
+            <!-- Budget Overview -->
+            <div class="budget-overview">
+                <div class="budget-stat neutral">
+                    <div class="stat-number" id="total-budget-display">₹0</div>
+                    <div style="font-size: 0.8rem; color: #64748b;">Total Budget</div>
+                </div>
+                <div class="budget-stat negative">
+                    <div class="stat-number" id="total-spent">₹0</div>
+                    <div style="font-size: 0.8rem; color: #64748b;">Total Spent</div>
+                </div>
+                <div class="budget-stat" id="remaining-stat">
+                    <div class="stat-number" id="remaining-budget">₹0</div>
+                    <div style="font-size: 0.8rem; color: #64748b;">Remaining</div>
+                </div>
             </div>
-            <div id="weather-content">
-                <!-- Weather content will be populated here -->
+            
+            <!-- Budget Alerts -->
+            <div id="budget-alerts"></div>
+            
+            <!-- Add Expense Form -->
+            <div class="expense-form">
+                <h4 style="margin-bottom: 1rem;">💰 Add New Expense</h4>
+                <div class="form-group">
+                    <select id="expense-category">
+                        <option value="accommodation">🏨 Accommodation</option>
+                        <option value="food">🍽️ Food & Dining</option>
+                        <option value="transport">🚗 Transportation</option>
+                        <option value="activities">🎯 Activities & Tours</option>
+                        <option value="shopping">🛍️ Shopping</option>
+                        <option value="miscellaneous">📝 Miscellaneous</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="expense-desc" placeholder="Description (e.g., Hotel booking, Lunch, etc.)">
+                </div>
+                <div class="form-group">
+                    <input type="number" id="expense-amount" placeholder="Amount (₹)" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <input type="date" id="expense-date">
+                </div>
+                <button class="btn" onclick="addExpense()">Add Expense</button>
             </div>
+            
+            <!-- Category-wise Expenses -->
+            <div id="category-expenses"></div>
+            
+            <!-- All Expenses List -->
+            <div id="expenses-list">
+                <div class="empty-state" id="no-expenses">
+                    <div style="font-size: 2rem;">💸</div>
+                    <h3>No expenses yet</h3>
+                    <p>Add your first expense above</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Translator -->
+        <div id="translate" class="content hidden">
+            <div class="translator-box">
+                <h4>🌐 Smart Translator</h4>
+                <select id="lang-select" style="margin-bottom: 1rem;">
+                    <option value="hi">Hindi</option>
+                    <option value="es">Spanish</option>
+                    <option value="fr">French</option>
+                    <option value="de">German</option>
+                    <option value="it">Italian</option>
+                    <option value="ja">Japanese</option>
+                    <option value="zh">Chinese</option>
+                </select>
+                <textarea id="text-input" placeholder="Enter text to translate..." rows="3"></textarea>
+                <button class="btn btn-small" onclick="translateText()">Translate</button>
+                <div id="translation-result" style="margin-top: 1rem; padding: 1rem; background: #f0f9ff; border-radius: 8px; display: none;"></div>
+            </div>
+            
+            <h4>Quick Phrases</h4>
+            <button class="btn btn-small" onclick="quickTranslate('Hello')">Hello</button>
+            <button class="btn btn-small" onclick="quickTranslate('Thank you')">Thank you</button>
+            <button class="btn btn-small" onclick="quickTranslate('Where is the bathroom?')">Bathroom?</button>
+        </div>
+        
+        <!-- Navigation -->
+        <div id="navigate" class="content hidden">
+            <div class="feature-card">
+                <h4>🗺️ Smart Navigation</h4>
+                <p>AI-powered route optimization</p>
+            </div>
+            
+            <div class="form-group">
+                <input type="text" id="nav-destination" placeholder="Where do you want to go?">
+                <button class="btn" onclick="getDirections()">Get Directions</button>
+            </div>
+            
+            <div id="directions-result"></div>
+            
+            <h4>Nearby Places</h4>
+            <button class="btn btn-small" onclick="findNearby('restaurants')">🍽️ Food</button>
+            <button class="btn btn-small" onclick="findNearby('hotels')">🏨 Hotels</button>
+            <button class="btn btn-small" onclick="findNearby('attractions')">🎯 Attractions</button>
+            
+            <div id="nearby-results"></div>
+        </div>
+        
+        <!-- Local Interactions -->
+        <div id="local" class="content hidden">
+            <div class="feature-card">
+                <h4>🏘️ Local Insights</h4>
+                <p>Connect with locals and get insider tips</p>
+            </div>
+            
+            <div id="local-tips">
+                <div class="local-tip">
+                    <strong>💡 Pro Tip:</strong> Download offline maps before you travel to avoid roaming charges.
+                </div>
+                <div class="local-tip">
+                    <strong>🍕 Local Food:</strong> Try street food - it's usually the most authentic and affordable option.
+                </div>
+                <div class="local-tip">
+                    <strong>🚗 Transport:</strong> Use local transport apps for better rates than tourist taxis.
+                </div>
+            </div>
+            
+            <button class="btn" onclick="getLocalTips()">Get More Tips</button>
         </div>
     </div>
 
     <script>
+        let trips = [];
+        let expenses = [];
         let currentUser = null;
-        let userTrips = [];
-        let destinations = [];
-
-        // Sample destinations data
-        const sampleDestinations = [
-            { name: "Paris, France", description: "City of Light with iconic landmarks and romantic atmosphere", emoji: "🗼" },
-            { name: "Tokyo, Japan", description: "Modern metropolis blending tradition with cutting-edge technology", emoji: "🏯" },
-            { name: "Rome, Italy", description: "Ancient history meets delicious cuisine in the Eternal City", emoji: "🏛️" },
-            { name: "New York, USA", description: "The city that never sleeps with endless possibilities", emoji: "🗽" },
-            { name: "London, UK", description: "Rich history, royal palaces, and vibrant culture", emoji: "🏰" },
-            { name: "Dubai, UAE", description: "Futuristic city with luxury shopping and stunning architecture", emoji: "🏙️" },
-            { name: "Bali, Indonesia", description: "Tropical paradise with beautiful beaches and temples", emoji: "🏝️" },
-            { name: "Barcelona, Spain", description: "Artistic architecture and Mediterranean charm", emoji: "🎨" },
-            { name: "Sydney, Australia", description: "Harbor city with iconic opera house and beaches", emoji: "🌊" },
-            { name: "Santorini, Greece", description: "Stunning sunsets and white-washed buildings", emoji: "🌅" }
-        ];
-
-        // Sample weather data
-        function generateWeatherData() {
-            const weathers = [
-                { temp: "22°C", condition: "Sunny", emoji: "☀️" },
-                { temp: "18°C", condition: "Partly Cloudy", emoji: "⛅" },
-                { temp: "15°C", condition: "Rainy", emoji: "🌧️" },
-                { temp: "25°C", condition: "Clear", emoji: "🌤️" }
-            ];
-            return weathers[Math.floor(Math.random() * weathers.length)];
+        
+        const translations = {
+            'Hello': { hi: 'नमस्ते', es: 'Hola', fr: 'Bonjour', de: 'Hallo', it: 'Ciao', ja: 'こんにちは', zh: '你好' },
+            'Thank you': { hi: 'धन्यवाद', es: 'Gracias', fr: 'Merci', de: 'Danke', it: 'Grazie', ja: 'ありがとう', zh: '谢谢' },
+            'Where is the bathroom?': { hi: 'बाथरूम कहाँ है?', es: '¿Dónde está el baño?', fr: 'Où sont les toilettes?', de: 'Wo ist die Toilette?', it: 'Dove è il bagno?', ja: 'トイレはどこですか？', zh: '厕所在哪里？' }
+        };
+        
+        const categoryIcons = {
+            accommodation: '🏨',
+            food: '🍽️',
+            transport: '🚗',
+            activities: '🎯',
+            shopping: '🛍️',
+            miscellaneous: '📝'
+        };
+        
+        // Set today's date as default for expense date
+        document.getElementById('expense-date').value = new Date().toISOString().split('T')[0];
+        
+        // Login Functions
+        function showSignup() {
+            alert('Signup feature would redirect to registration page');
         }
-
-        function toggleAuthMode() {
-            const signinForm = document.getElementById('signin-form');
-            const signupForm = document.getElementById('signup-form');
-            
-            signinForm.classList.toggle('hidden');
-            signupForm.classList.toggle('hidden');
-        }
-
-        function showMainApp() {
-            document.getElementById('auth-screen').classList.add('hidden');
+        
+        function quickLogin() {
+            currentUser = { name: 'Demo User', email: 'demo@example.com' };
+            document.getElementById('user-name').textContent = currentUser.name;
+            document.getElementById('login-page').classList.add('hidden');
             document.getElementById('main-app').classList.remove('hidden');
-            document.getElementById('main-app').classList.add('fade-in');
-            document.getElementById('user-name').textContent = currentUser.name || "Traveler";
-            updateDashboardStats();
-            renderItineraries();
-            generateDestinations();
+            updateDashboard();
         }
-
+        
         function logout() {
             currentUser = null;
-            userTrips = [];
+            trips = [];
+            expenses = [];
+            document.getElementById('login-page').classList.remove('hidden');
             document.getElementById('main-app').classList.add('hidden');
-            document.getElementById('auth-screen').classList.remove('hidden');
-            document.getElementById('auth-screen').classList.add('fade-in');
-            
-            document.getElementById('signin-form').classList.remove('hidden');
-            document.getElementById('signup-form').classList.add('hidden');
-            document.getElementById('signin-form-element').reset();
-            document.getElementById('signup-form-element').reset();
+            document.getElementById('login-form').reset();
         }
-
-        function showTab(tab) {
-            const tabs = ['dashboard', 'itinerary', 'navigation'];
-            tabs.forEach(t => {
-                document.getElementById(t + '-tab').classList.add('hidden');
-            });
+        
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
             
-            const btns = document.getElementsByClassName('tab-btn');
-            for (let i = 0; i < btns.length; i++) {
-                btns[i].classList.remove('active');
+            if (email && password) {
+                currentUser = { name: email.split('@')[0], email: email };
+                document.getElementById('user-name').textContent = currentUser.name;
+                document.getElementById('login-page').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                updateDashboard();
             }
+        });
+        
+        function showTab(tabName) {
+            document.querySelectorAll('.content').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('.tab').forEach(btn => btn.classList.remove('active'));
             
-            const selectedTab = document.getElementById(tab + '-tab');
-            selectedTab.classList.remove('hidden');
-            selectedTab.classList.add('fade-in');
+            document.getElementById(tabName).classList.remove('hidden');
+            event.target.classList.add('active');
             
-            const tabIndex = tabs.indexOf(tab);
-            if (tabIndex !== -1) {
-                btns[tabIndex].classList.add('active');
-            }
-            
-            setTimeout(() => {
-                selectedTab.classList.remove('fade-in');
-            }, 500);
+            if (tabName === 'trips') renderTrips();
+            if (tabName === 'dashboard') updateDashboard();
+            if (tabName === 'budget') updateBudget();
         }
-
-        function openNewTripModal() {
-            document.getElementById('new-trip-modal').classList.remove('hidden');
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
-        }
-
-        function addTrip(tripData) {
+        
+        function addTrip(destination, startDate, endDate, budget) {
             const trip = {
                 id: Date.now(),
-                destination: tripData.destination,
-                startDate: tripData.startDate,
-                endDate: tripData.endDate,
-                description: tripData.description || "Exciting adventure awaits!",
-                emoji: getDestinationEmoji(tripData.destination)
+                destination,
+                startDate,
+                endDate,
+                budget: parseInt(budget) || 0,
+                status: 'upcoming'
             };
-            
-            userTrips.push(trip);
-            updateDashboardStats();
-            renderItineraries();
-            showNotification('Trip added successfully!');
+            trips.push(trip);
+            updateDashboard();
+            alert('🎉 Trip created successfully!');
         }
-
-        function deleteTrip(tripId) {
-            userTrips = userTrips.filter(trip => trip.id !== tripId);
-            updateDashboardStats();
-            renderItineraries();
-            showNotification('Trip removed successfully!');
+        
+        function deleteTrip(id) {
+            trips = trips.filter(trip => trip.id !== id);
+            renderTrips();
+            updateDashboard();
         }
-
-        function getDestinationEmoji(destination) {
-            const found = sampleDestinations.find(d => 
-                d.name.toLowerCase().includes(destination.toLowerCase().split(',')[0])
-            );
-            return found ? found.emoji : "🌍";
-        }
-
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric', 
-                year: 'numeric' 
-            });
-        }
-
-        function updateDashboardStats() {
-            document.getElementById('trips-count').textContent = userTrips.length;
-            document.getElementById('places-count').textContent = userTrips.length;
-        }
-
-        function renderItineraries() {
-            const container = document.getElementById('itinerary-list');
-            
-            if (userTrips.length === 0) {
+        
+        function renderTrips() {
+            const container = document.getElementById('trips-list');
+            if (trips.length === 0) {
                 container.innerHTML = `
-                    <div style="text-align: center; padding: 2rem; color: #64748b;">
-                        <div style="font-size: 3rem; margin-bottom: 1rem;">✈️</div>
-                        <h3>No trips planned yet</h3>
-                        <p>Start planning your next adventure!</p>
+                    <div class="empty-state">
+                        <div style="font-size: 2rem;">✈️</div>
+                        <h3>No trips yet</h3>
+                        <button class="btn" onclick="showTab('add')">Plan First Trip</button>
                     </div>
                 `;
                 return;
             }
-
-            container.innerHTML = userTrips.map(trip => `
-                <div class="itinerary-item">
-                    <button class="delete-btn" onclick="deleteTrip(${trip.id})">&times;</button>
-                    <div class="itinerary-date">${formatDate(trip.startDate)} - ${formatDate(trip.endDate)}</div>
-                    <div class="itinerary-title">${trip.emoji} ${trip.destination}</div>
-                    <div class="itinerary-description">${trip.description}</div>
+            
+            container.innerHTML = trips.map(trip => `
+                <div class="trip-card">
+                    <div class="trip-title">🌍 ${trip.destination}</div>
+                    <div class="trip-meta">${formatDate(trip.startDate)} - ${formatDate(trip.endDate)}</div>
+                    <div class="trip-meta">Budget: ₹${trip.budget.toLocaleString('en-IN')}</div>
+                    <button class="btn btn-small btn-warning" onclick="rescheduleTrip(${trip.id})">Reschedule</button>
+                    <button class="btn btn-small btn-danger" onclick="deleteTrip(${trip.id})">Delete</button>
                 </div>
             `).join('');
         }
-
-        function generateDestinations() {
-            destinations = [...sampleDestinations];
-            renderDestinations(destinations);
+        
+        function updateDashboard() {
+            document.getElementById('trip-count').textContent = trips.length;
+            const totalBudget = trips.reduce((sum, trip) => sum + trip.budget, 0);
+            document.getElementById('total-budget').textContent = `₹${totalBudget.toLocaleString('en-IN')}`;
         }
-
-        function renderDestinations(destinationsToRender) {
-            const container = document.getElementById('destinations-list');
+        
+        function updateBudget() {
+            const totalBudget = trips.reduce((sum, trip) => sum + trip.budget, 0);
+            const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+            const remaining = totalBudget - totalExpenses;
             
-            container.innerHTML = destinationsToRender.map(dest => `
-                <div class="destination-card" onclick="selectDestination('${dest.name}')">
-                    <div class="destination-name">${dest.emoji} ${dest.name}</div>
-                    <div class="destination-description">${dest.description}</div>
-                </div>
-            `).join('');
+            // Update budget overview
+            document.getElementById('total-budget-display').textContent = `₹${totalBudget.toLocaleString('en-IN')}`;
+            document.getElementById('total-spent').textContent = `₹${totalExpenses.toLocaleString('en-IN')}`;
+            document.getElementById('remaining-budget').textContent = `₹${remaining.toLocaleString('en-IN')}`;
+            
+            // Update remaining stat color
+            const remainingStat = document.getElementById('remaining-stat');
+            remainingStat.className = 'budget-stat ' + (remaining > 0 ? 'positive' : remaining < 0 ? 'negative' : 'neutral');
+            
+            // Show budget alerts
+            updateBudgetAlerts(totalBudget, totalExpenses, remaining);
+            
+            // Update category expenses
+            updateCategoryExpenses();
+            
+            // Update expenses list
+            updateExpensesList();
         }
-
-        function selectDestination(destinationName) {
-            const today = new Date();
-            const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+        
+        function updateBudgetAlerts(totalBudget, totalExpenses, remaining) {
+            const alertsContainer = document.getElementById('budget-alerts');
+            let alerts = '';
             
-            const tripData = {
-                destination: destinationName,
-                startDate: nextWeek.toISOString().split('T')[0],
-                endDate: new Date(nextWeek.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                description: `Explore the amazing ${destinationName}!`
-            };
-            
-            addTrip(tripData);
-            showTab('itinerary');
-        }
-
-        function showWeather() {
-            const weatherContent = document.getElementById('weather-content');
-            
-            if (userTrips.length === 0) {
-                weatherContent.innerHTML = `
-                    <div style="text-align: center; padding: 2rem; color: #64748b;">
-                        <div style="font-size: 3rem; margin-bottom: 1rem;">🌤️</div>
-                        <h3>No trips to show weather for</h3>
-                        <p>Add some trips to see weather updates!</p>
-                    </div>
-                `;
+            if (totalBudget === 0) {
+                alerts += `<div class="alert alert-warning">⚠️ No budget set yet. Add a trip to set your budget.</div>`;
             } else {
-                weatherContent.innerHTML = userTrips.map(trip => {
-                    const weather = generateWeatherData();
-                    return `
-                        <div class="weather-card">
-                            <h3>${trip.destination}</h3>
-                            <div class="weather-temp">${weather.temp}</div>
-                            <div>${weather.emoji} ${weather.condition}</div>
-                            <div style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.8;">
-                                Trip: ${formatDate(trip.startDate)} - ${formatDate(trip.endDate)}
-                            </div>
-                        </div>
-                    `;
-                }).join('');
+                const spentPercentage = (totalExpenses / totalBudget) * 100;
+                
+                if (remaining < 0) {
+                    alerts += `<div class="alert alert-danger">🚨 You've exceeded your budget by ₹${Math.abs(remaining).toLocaleString('en-IN')}!</div>`;
+                } else if (spentPercentage > 80) {
+                    alerts += `<div class="alert alert-warning">⚠️ You've used ${spentPercentage.toFixed(0)}% of your budget. Be careful with remaining expenses.</div>`;
+                } else if (spentPercentage > 50) {
+                    alerts += `<div class="alert alert-success">✅ You're at ${spentPercentage.toFixed(0)}% of your budget. Good progress!</div>`;
+                }
             }
             
-            document.getElementById('weather-modal').classList.remove('hidden');
+            alertsContainer.innerHTML = alerts;
         }
-
-        function searchDestinations() {
-            const searchTerm = document.getElementById('destination-search').value.toLowerCase();
-            const filtered = destinations.filter(dest => 
-                dest.name.toLowerCase().includes(searchTerm) ||
+        
+        function updateCategoryExpenses() {
+            const categoryTotals = {};
+            const totalBudget = trips.reduce((sum, trip) => sum + trip.budget, 0);
