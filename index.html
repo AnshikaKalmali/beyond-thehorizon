@@ -1,383 +1,978 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beyond the Horizon</title>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-</head>
-<body>
-    <div id="root"></div>
+import { useState, useEffect } from 'react';
+import { Home, Map, DollarSign, Train, Bus, Hotel, Utensils, ShoppingCart, Landmark, Globe, Languages, Users, CalendarClock } from 'lucide-react';
+import { Button } from "/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "/components/ui/card";
+import { Input } from "/components/ui/input";
+import { Label } from "/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+
+type ItineraryItem = {
+  id: string;
+  destination: string;
+  startDate: string;
+  endDate: string;
+  activities: string;
+  travelMode: 'flight' | 'train' | 'bus' | 'self-drive';
+  status: 'planned' | 'completed' | 'rescheduled';
+};
+
+type ExpenseItem = {
+  id: string;
+  amount: number;
+  currency: string;
+  category: 'food' | 'transport' | 'accommodation' | 'shopping' | 'sightseeing' | 'other';
+  description: string;
+  date: string;
+  paymentMethod: 'cash' | 'upi' | 'card' | 'netbanking';
+  convertedAmount: number;
+};
+
+type ConnectionItem = {
+  id: string;
+  name: string;
+  location: string;
+  contact: string;
+  type: 'guide' | 'driver' | 'host' | 'other';
+  notes: string;
+};
+
+type LanguagePhrase = {
+  id: string;
+  english: string;
+  local: string;
+  pronunciation: string;
+  category: 'greetings' | 'directions' | 'food' | 'emergency';
+};
+
+export default function SmartTravelCompanion() {
+  // State management
+  const [activeTab, setActiveTab] = useState<'itinerary' | 'navigation' | 'budget' | 'connections' | 'language'>('itinerary');
+  const [itineraries, setItineraries] = useState<ItineraryItem[]>([]);
+  const [expenses, setExpenses] = useState<ExpenseItem[]>([]);
+  const [connections, setConnections] = useState<ConnectionItem[]>([]);
+  const [phrases, setPhrases] = useState<LanguagePhrase[]>([]);
+  const [budget, setBudget] = useState<number>(0);
+  const [baseCurrency, setBaseCurrency] = useState<string>('INR');
+  const [autoReschedule, setAutoReschedule] = useState<boolean>(true);
+  const [currentLocation, setCurrentLocation] = useState<{lat: number, lng: number} | null>(null);
+  const [destination, setDestination] = useState('');
+
+  // Form states
+  const [newItinerary, setNewItinerary] = useState<Omit<ItineraryItem, 'id' | 'status'>>({
+    destination: '',
+    startDate: '',
+    endDate: '',
+    activities: '',
+    travelMode: 'train'
+  });
+  
+  const [newExpense, setNewExpense] = useState<Omit<ExpenseItem, 'id' | 'convertedAmount'>>({
+    amount: 0,
+    currency: 'INR',
+    category: 'food',
+    description: '',
+    date: new Date().toISOString().split('T')[0],
+    paymentMethod: 'upi'
+  });
+
+  const [newConnection, setNewConnection] = useState<Omit<ConnectionItem, 'id'>>({
+    name: '',
+    location: '',
+    contact: '',
+    type: 'guide',
+    notes: ''
+  });
+
+  const [newPhrase, setNewPhrase] = useState<Omit<LanguagePhrase, 'id'>>({
+    english: '',
+    local: '',
+    pronunciation: '',
+    category: 'greetings'
+  });
+
+  // Currency rates (simplified - in real app, fetch from API)
+  const [currencyRates, setCurrencyRates] = useState<Record<string, number>>({
+    USD: 83.5,
+    EUR: 89.2,
+    GBP: 105.4,
+    INR: 1,
+    AED: 22.7,
+    SGD: 61.8
+  });
+
+  // Format currency
+  const formatCurrency = (amount: number, currency: string) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+
+  // Convert amount between currencies
+  const convertCurrency = (amount: number, from: string, to: string) => {
+    return amount * (currencyRates[to] || 1) / (currencyRates[from] || 1);
+  };
+
+  // Auto-reschedule conflicting itineraries
+  const checkAndReschedule = (newItinerary: ItineraryItem) => {
+    if (!autoReschedule) return;
+
+    const conflicts = itineraries.filter(item => 
+      item.id !== newItinerary.id && 
+      item.status === 'planned' &&
+      ((new Date(newItinerary.startDate) <= new Date(item.endDate) && 
+        new Date(newItinerary.endDate) >= new Date(item.startDate))
+      )
+    );
+
+    if (conflicts.length > 0) {
+      const updated = itineraries.map(item => {
+        if (conflicts.some(c => c.id === item.id)) {
+          const newStartDate = new Date(item.startDate);
+          newStartDate.setDate(newStartDate.getDate() + 1);
+          const newEndDate = new Date(item.endDate);
+          newEndDate.setDate(newEndDate.getDate() + 1);
+          
+          return {
+            ...item,
+            startDate: newStartDate.toISOString().split('T')[0],
+            endDate: newEndDate.toISOString().split('T')[0],
+            status: 'rescheduled'
+          };
+        }
+        return item;
+      });
+
+      setItineraries(updated);
+      alert(`${conflicts.length} itinerary(s) automatically rescheduled to avoid conflicts`);
+    }
+  };
+
+  // Handle itinerary submission with auto-rescheduling
+  const handleItinerarySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const itineraryToAdd = {
+      ...newItinerary,
+      id: Date.now().toString(),
+      status: 'planned' as const
+    };
     
-    <script type="text/babel">
-        const { useState, useEffect } = React;
-        const { MapPin, Calendar, DollarSign, Globe, MessageCircle, Users, Book, Settings, Search, Plus, Minus, Star, Clock, Navigation } = lucide;
+    checkAndReschedule(itineraryToAdd);
+    setItineraries([...itineraries, itineraryToAdd]);
+    setNewItinerary({
+      destination: '',
+      startDate: '',
+      endDate: '',
+      activities: '',
+      travelMode: 'train'
+    });
+  };
 
-        const TravelCompanionApp = () => {
-          const [activeTab, setActiveTab] = useState('stories');
-          const [budget, setBudget] = useState({ total: 1000, spent: 0, categories: {} });
-          const [searchQuery, setSearchQuery] = useState('');
-          const [selectedPlace, setSelectedPlace] = useState(null);
-          const [userPreferences, setUserPreferences] = useState({
-            interests: ['history', 'culture', 'food'],
-            budget: 'medium',
-            travelStyle: 'explorer'
+  // Handle expense submission with currency conversion
+  const handleExpenseSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setExpenses([...expenses, {
+      ...newExpense,
+      id: Date.now().toString(),
+      convertedAmount: convertCurrency(newExpense.amount, newExpense.currency, baseCurrency)
+    }]);
+    setNewExpense({
+      amount: 0,
+      currency: 'INR',
+      category: 'food',
+      description: '',
+      date: new Date().toISOString().split('T')[0],
+      paymentMethod: 'upi'
+    });
+  };
+
+  // Get current location
+  const getCurrentLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCurrentLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
           });
-          const [translation, setTranslation] = useState({ from: '', to: '', result: '' });
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+        }
+      );
+    }
+  };
 
-          const placeStories = {
-            'paris': {
-              name: 'Paris, France',
-              story: 'The City of Light earned its nickname from being one of the first cities to use gas street lighting extensively. The Eiffel Tower, built for the 1889 World Expo, was initially criticized by Parisians but became the world\'s most beloved iron lady.',
-              facts: ['Home to the world\'s largest art museum - The Louvre', 'Has over 40,000 restaurants', 'The Metro system has 300 stations'],
-              rating: 4.8,
-              bestTime: 'April-June, September-October',
-              budget: '$150-300/day'
-            },
-            'tokyo': {
-              name: 'Tokyo, Japan',
-              story: 'Once called Edo, Tokyo became the capital in 1868 when Emperor Meiji moved from Kyoto. The name literally means "Eastern Capital". This mega-city seamlessly blends ultra-modern technology with ancient traditions.',
-              facts: ['Most populous metropolitan area in the world', 'Has more Michelin stars than any other city', 'Rebuilt twice after major disasters'],
-              rating: 4.9,
-              bestTime: 'March-May, September-November',
-              budget: '$100-250/day'
-            },
-            'rome': {
-              name: 'Rome, Italy',
-              story: 'The Eternal City, founded in 753 BC, was once the center of the mighty Roman Empire. Legend says it was founded by twins Romulus and Remus, raised by a wolf. Every corner tells a story spanning over 2,500 years.',
-              facts: ['Built on seven hills', 'Has more fountains than any other city', 'Vatican City is within Rome'],
-              rating: 4.7,
-              bestTime: 'April-June, September-October',
-              budget: '$120-280/day'
-            }
-          };
+  // Calculate budget summary
+  const totalExpenses = expenses.reduce((sum, expense) => sum + expense.convertedAmount, 0);
+  const remainingBudget = budget - totalExpenses;
 
-          const recommendations = [
-            { name: 'Santorini, Greece', match: '95%', reason: 'Perfect for culture & history lovers', price: '$200/day' },
-            { name: 'Kyoto, Japan', match: '92%', reason: 'Rich cultural heritage', price: '$150/day' },
-            { name: 'Barcelona, Spain', match: '88%', reason: 'Great food scene', price: '$180/day' }
-          ];
+  // Load sample data
+  useEffect(() => {
+    // Sample phrases
+    setPhrases([
+      {
+        id: '1',
+        english: 'Hello',
+        local: 'नमस्ते',
+        pronunciation: 'na-mas-tay',
+        category: 'greetings'
+      },
+      {
+        id: '2',
+        english: 'How much does this cost?',
+        local: 'यह कितने का है?',
+        pronunciation: 'yah kit-nay ka hai?',
+        category: 'food'
+      },
+      {
+        id: '3',
+        english: 'Where is the restroom?',
+        local: 'शौचालय कहाँ है?',
+        pronunciation: 'shau-cha-lay ka-han hai?',
+        category: 'directions'
+      }
+    ]);
 
-          const scheduleItems = [
-            { time: '09:00', activity: 'Visit Louvre Museum', duration: '3h', location: 'Paris' },
-            { time: '14:00', activity: 'Lunch at local bistro', duration: '1h', location: 'Montmartre' },
-            { time: '16:00', activity: 'Eiffel Tower visit', duration: '2h', location: 'Champ de Mars' }
-          ];
+    // Sample connections
+    setConnections([
+      {
+        id: '1',
+        name: 'Rajesh Kumar',
+        location: 'Delhi',
+        contact: '+91 98765 43210',
+        type: 'guide',
+        notes: 'Speaks English and Hindi'
+      },
+      {
+        id: '2',
+        name: 'Sunil Taxi Service',
+        location: 'Mumbai',
+        contact: '+91 87654 32109',
+        type: 'driver',
+        notes: '24/7 available'
+      }
+    ]);
+  }, []);
 
-          const commonPhrases = {
-            'hello': { english: 'Hello', french: 'Bonjour', spanish: 'Hola', japanese: 'Konnichiwa' },
-            'thank you': { english: 'Thank you', french: 'Merci', spanish: 'Gracias', japanese: 'Arigato' },
-            'excuse me': { english: 'Excuse me', french: 'Excusez-moi', spanish: 'Perdón', japanese: 'Sumimasen' },
-            'how much': { english: 'How much?', french: 'Combien?', spanish: '¿Cuánto?', japanese: 'Ikura desu ka?' }
-          };
+  return (
+    <div className="min-h-screen bg-gray-50 p-4">
+      <Card className="max-w-6xl mx-auto">
+        <CardHeader>
+          <CardTitle className="text-2xl flex items-center gap-2">
+            <Globe className="h-6 w-6" />
+            Smart Travel Companion
+          </CardTitle>
+          <CardDescription>Your all-in-one intelligent travel assistant</CardDescription>
+          
+          <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
+            <Button 
+              variant={activeTab === 'itinerary' ? 'default' : 'outline'} 
+              onClick={() => setActiveTab('itinerary')}
+              className="flex items-center gap-2"
+            >
+              <Home className="h-4 w-4" />
+              Itinerary
+            </Button>
+            <Button 
+              variant={activeTab === 'navigation' ? 'default' : 'outline'} 
+              onClick={() => setActiveTab('navigation')}
+              className="flex items-center gap-2"
+            >
+              <Map className="h-4 w-4" />
+              Navigation
+            </Button>
+            <Button 
+              variant={activeTab === 'budget' ? 'default' : 'outline'} 
+              onClick={() => setActiveTab('budget')}
+              className="flex items-center gap-2"
+            >
+              <DollarSign className="h-4 w-4" />
+              Smart Budget
+            </Button>
+            <Button 
+              variant={activeTab === 'connections' ? 'default' : 'outline'} 
+              onClick={() => setActiveTab('connections')}
+              className="flex items-center gap-2"
+            >
+              <Users className="h-4 w-4" />
+              Local Connections
+            </Button>
+            <Button 
+              variant={activeTab === 'language' ? 'default' : 'outline'} 
+              onClick={() => setActiveTab('language')}
+              className="flex items-center gap-2"
+            >
+              <Languages className="h-4 w-4" />
+              Language Helper
+            </Button>
+          </div>
+        </CardHeader>
 
-          const handleSearch = (query) => {
-            const place = Object.keys(placeStories).find(key => 
-              key.toLowerCase().includes(query.toLowerCase()) || 
-              placeStories[key].name.toLowerCase().includes(query.toLowerCase())
-            );
-            if (place) {
-              setSelectedPlace(placeStories[place]);
-            }
-          };
+        <CardContent>
+          {/* Itinerary Tab with Auto-Rescheduling */}
+          {activeTab === 'itinerary' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold">Travel Plans</h2>
+                <div className="flex items-center gap-2">
+                  <Switch 
+                    id="auto-reschedule" 
+                    checked={autoReschedule}
+                    onCheckedChange={setAutoReschedule}
+                  />
+                  <Label htmlFor="auto-reschedule">Auto-Reschedule Conflicts</Label>
+                </div>
+              </div>
 
-          const addExpense = (amount, category) => {
-            setBudget(prev => ({
-              ...prev,
-              spent: prev.spent + amount,
-              categories: {
-                ...prev.categories,
-                [category]: (prev.categories[category] || 0) + amount
-              }
-            }));
-          };
+              <Card>
+                <CardHeader>
+                  <CardTitle>Add New Itinerary</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleItinerarySubmit} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="destination">Destination</Label>
+                        <Input
+                          id="destination"
+                          value={newItinerary.destination}
+                          onChange={(e) => setNewItinerary({...newItinerary, destination: e.target.value})}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Travel Mode</Label>
+                        <RadioGroup 
+                          value={newItinerary.travelMode}
+                          onValueChange={(value) => setNewItinerary({...newItinerary, travelMode: value as any})}
+                          className="grid grid-cols-4 gap-2"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="train" id="train" />
+                            <Label htmlFor="train" className="flex items-center gap-1">
+                              <Train className="h-4 w-4" /> Train
+                            </Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="bus" id="bus" />
+                            <Label htmlFor="bus" className="flex items-center gap-1">
+                              <Bus className="h-4 w-4" /> Bus
+                            </Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="flight" id="flight" />
+                            <Label htmlFor="flight" className="flex items-center gap-1">
+                              <Map className="h-4 w-4" /> Flight
+                            </Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="self-drive" id="self-drive" />
+                            <Label htmlFor="self-drive">Self Drive</Label>
+                          </div>
+                        </RadioGroup>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="startDate">Start Date</Label>
+                        <Input
+                          id="startDate"
+                          type="date"
+                          value={newItinerary.startDate}
+                          onChange={(e) => setNewItinerary({...newItinerary, startDate: e.target.value})}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="endDate">End Date</Label>
+                        <Input
+                          id="endDate"
+                          type="date"
+                          value={newItinerary.endDate}
+                          onChange={(e) => setNewItinerary({...newItinerary, endDate: e.target.value})}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="activities">Activities</Label>
+                      <Textarea
+                        id="activities"
+                        value={newItinerary.activities}
+                        onChange={(e) => setNewItinerary({...newItinerary, activities: e.target.value})}
+                        rows={3}
+                        placeholder="List your planned activities..."
+                      />
+                    </div>
+                    <Button type="submit">Add Itinerary</Button>
+                  </form>
+                </CardContent>
+              </Card>
 
-          const TabButton = ({ id, icon: Icon, label, active }) => (
-            React.createElement('button', {
-              onClick: () => setActiveTab(id),
-              className: `flex flex-col items-center p-3 rounded-lg transition-all ${
-                active 
-                  ? 'bg-red-800 text-amber-100 shadow-lg' 
-                  : 'text-red-800 hover:bg-red-50'
-              }`
-            }, [
-              React.createElement(Icon, { size: 20, key: 'icon' }),
-              React.createElement('span', { className: 'text-xs mt-1', key: 'label' }, label)
-            ])
-          );
+              <Card>
+                <CardHeader>
+                  <CardTitle>Your Itineraries</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {itineraries.length === 0 ? (
+                    <p className="text-gray-500">No itineraries added yet.</p>
+                  ) : (
+                    <div className="space-y-4">
+                      {itineraries.map((itinerary) => (
+                        <Card key={itinerary.id} className={itinerary.status === 'rescheduled' ? 'border-yellow-200 bg-yellow-50' : ''}>
+                          <CardHeader>
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  {itinerary.status === 'rescheduled' && (
+                                    <Badge variant="secondary" className="flex items-center gap-1">
+                                      <CalendarClock className="h-3 w-3" /> Rescheduled
+                                    </Badge>
+                                  )}
+                                  <CardTitle>{itinerary.destination}</CardTitle>
+                                </div>
+                                <CardDescription>
+                                  {new Date(itinerary.startDate).toLocaleDateString()} to {new Date(itinerary.endDate).toLocaleDateString()} • {itinerary.travelMode}
+                                </CardDescription>
+                              </div>
+                              <div className="flex gap-2">
+                                <Button variant="outline" size="sm">View Details</Button>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="whitespace-pre-line">{itinerary.activities}</p>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
-          return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-amber-50 to-red-50' }, [
-            // Header
-            React.createElement('div', { className: 'bg-red-800 text-amber-100 p-4 shadow-lg', key: 'header' }, [
-              React.createElement('div', { className: 'flex items-center justify-between', key: 'header-content' }, [
-                React.createElement('div', { className: 'flex items-center space-x-3', key: 'logo' }, [
-                  React.createElement(Navigation, { className: 'h-8 w-8', key: 'nav-icon' }),
-                  React.createElement('h1', { className: 'text-2xl font-bold', key: 'title' }, 'Beyond the Horizon')
-                ]),
-                React.createElement(Settings, { className: 'h-6 w-6 cursor-pointer hover:text-amber-200', key: 'settings' })
-              ]),
-              React.createElement('div', { className: 'mt-4 relative', key: 'search-bar' }, [
-                React.createElement('input', {
-                  type: 'text',
-                  placeholder: 'Search for places, stories, or experiences...',
-                  className: 'w-full p-3 rounded-lg bg-amber-100 text-red-800 placeholder-red-400 focus:outline-none focus:ring-2 focus:ring-amber-300',
-                  value: searchQuery,
-                  onChange: (e) => setSearchQuery(e.target.value),
-                  onKeyPress: (e) => e.key === 'Enter' && handleSearch(searchQuery),
-                  key: 'search-input'
-                }),
-                React.createElement(Search, { 
-                  className: 'absolute right-3 top-3 h-5 w-5 text-red-600 cursor-pointer',
-                  onClick: () => handleSearch(searchQuery),
-                  key: 'search-icon'
-                })
-              ])
-            ]),
-            
-            // Navigation Tabs
-            React.createElement('div', { className: 'bg-amber-100 p-4 shadow-sm', key: 'nav-tabs' },
-              React.createElement('div', { className: 'flex justify-around max-w-2xl mx-auto' }, [
-                React.createElement(TabButton, { id: 'stories', icon: Book, label: 'Stories', active: activeTab === 'stories', key: 'stories-tab' }),
-                React.createElement(TabButton, { id: 'budget', icon: DollarSign, label: 'Budget', active: activeTab === 'budget', key: 'budget-tab' }),
-                React.createElement(TabButton, { id: 'schedule', icon: Calendar, label: 'Schedule', active: activeTab === 'schedule', key: 'schedule-tab' }),
-                React.createElement(TabButton, { id: 'recommendations', icon: Star, label: 'Discover', active: activeTab === 'recommendations', key: 'recs-tab' }),
-                React.createElement(TabButton, { id: 'translate', icon: Globe, label: 'Translate', active: activeTab === 'translate', key: 'translate-tab' }),
-                React.createElement(TabButton, { id: 'social', icon: Users, label: 'Connect', active: activeTab === 'social', key: 'social-tab' })
-              ])
-            ),
+          {/* Smart Budget Tab with Currency Converter */}
+          {activeTab === 'budget' && (
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Budget Overview</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div className="p-4 bg-blue-50 rounded-lg">
+                      <h3 className="font-semibold text-blue-800">Total Budget</h3>
+                      <p className="text-2xl font-bold">{formatCurrency(budget, baseCurrency)}</p>
+                    </div>
+                    <div className="p-4 bg-red-50 rounded-lg">
+                      <h3 className="font-semibold text-red-800">Total Expenses</h3>
+                      <p className="text-2xl font-bold">{formatCurrency(totalExpenses, baseCurrency)}</p>
+                    </div>
+                    <div className={`p-4 rounded-lg ${
+                      remainingBudget >= 0 ? 'bg-green-50' : 'bg-yellow-50'
+                    }`}>
+                      <h3 className={`font-semibold ${
+                        remainingBudget >= 0 ? 'text-green-800' : 'text-yellow-800'
+                      }`}>
+                        Remaining Budget
+                      </h3>
+                      <p className="text-2xl font-bold">{formatCurrency(remainingBudget, baseCurrency)}</p>
+                    </div>
+                  </div>
 
-            // Main Content
-            React.createElement('div', { className: 'p-6 max-w-4xl mx-auto', key: 'main-content' }, [
-              
-              // Stories Tab Content
-              activeTab === 'stories' && React.createElement('div', { className: 'space-y-6', key: 'stories-content' }, [
-                React.createElement('h2', { className: 'text-3xl font-bold text-red-800 mb-6', key: 'stories-title' }, 'Discover Stories'),
-                
-                selectedPlace ? React.createElement('div', { className: 'bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-800', key: 'selected-place' }, [
-                  React.createElement('div', { className: 'flex items-center justify-between mb-4', key: 'place-header' }, [
-                    React.createElement('h3', { className: 'text-2xl font-bold text-red-800', key: 'place-name' }, selectedPlace.name),
-                    React.createElement('div', { className: 'flex items-center text-amber-600', key: 'rating' }, [
-                      React.createElement(Star, { className: 'h-5 w-5 fill-current', key: 'star' }),
-                      React.createElement('span', { className: 'ml-1', key: 'rating-num' }, selectedPlace.rating)
-                    ])
-                  ]),
-                  React.createElement('p', { className: 'text-gray-700 mb-4 leading-relaxed', key: 'story' }, selectedPlace.story),
-                  React.createElement('div', { className: 'grid md:grid-cols-2 gap-4 mb-4', key: 'details' }, [
-                    React.createElement('div', { className: 'bg-amber-50 p-4 rounded-lg', key: 'facts' }, [
-                      React.createElement('h4', { className: 'font-semibold text-red-800 mb-2', key: 'facts-title' }, 'Quick Facts'),
-                      React.createElement('ul', { className: 'space-y-1', key: 'facts-list' },
-                        selectedPlace.facts.map((fact, index) =>
-                          React.createElement('li', { key: index, className: 'text-sm text-gray-600' }, `• ${fact}`)
-                        )
-                      )
-                    ]),
-                    React.createElement('div', { className: 'bg-red-50 p-4 rounded-lg', key: 'travel-info' }, [
-                      React.createElement('h4', { className: 'font-semibold text-red-800 mb-2', key: 'travel-title' }, 'Travel Info'),
-                      React.createElement('p', { className: 'text-sm text-gray-600 mb-1', key: 'best-time' }, `Best Time: ${selectedPlace.bestTime}`),
-                      React.createElement('p', { className: 'text-sm text-gray-600', key: 'budget-info' }, `Budget: ${selectedPlace.budget}`)
-                    ])
-                  ])
-                ]) : React.createElement('div', { className: 'grid md:grid-cols-3 gap-4', key: 'places-grid' },
-                  Object.entries(placeStories).map(([key, place]) =>
-                    React.createElement('div', {
-                      key: key,
-                      className: 'bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow cursor-pointer p-6 border border-amber-200',
-                      onClick: () => setSelectedPlace(place)
-                    }, [
-                      React.createElement('h3', { className: 'text-xl font-bold text-red-800 mb-2', key: 'card-name' }, place.name),
-                      React.createElement('p', { className: 'text-gray-600 text-sm line-clamp-3', key: 'card-story' }, `${place.story.substring(0, 100)}...`),
-                      React.createElement('div', { className: 'mt-3 flex items-center justify-between', key: 'card-footer' }, [
-                        React.createElement('span', { className: 'text-amber-600 text-sm', key: 'explore' }, 'Click to explore'),
-                        React.createElement('div', { className: 'flex items-center text-amber-600', key: 'card-rating' }, [
-                          React.createElement(Star, { className: 'h-4 w-4 fill-current', key: 'card-star' }),
-                          React.createElement('span', { className: 'ml-1 text-sm', key: 'card-rating-num' }, place.rating)
-                        ])
-                      ])
-                    ])
-                  )
-                )
-              ]),
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Add New Expense</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <form onSubmit={handleExpenseSubmit} className="space-y-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="amount">Amount</Label>
+                            <div className="flex gap-2">
+                              <Input
+                                id="amount"
+                                type="number"
+                                value={newExpense.amount || ''}
+                                onChange={(e) => setNewExpense({...newExpense, amount: Number(e.target.value)})}
+                                min="0"
+                                step="10"
+                                required
+                              />
+                              <Select
+                                value={newExpense.currency}
+                                onValueChange={(value) => setNewExpense({...newExpense, currency: value})}
+                              >
+                                <SelectTrigger className="w-[100px]">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {Object.keys(currencyRates).map(currency => (
+                                    <SelectItem key={currency} value={currency}>{currency}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            {newExpense.currency !== baseCurrency && (
+                              <p className="text-sm text-gray-500">
+                                ≈ {formatCurrency(convertCurrency(newExpense.amount, newExpense.currency, baseCurrency), baseCurrency)}
+                              </p>
+                            )}
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="category">Category</Label>
+                              <Select
+                                value={newExpense.category}
+                                onValueChange={(value) => setNewExpense({...newExpense, category: value as any})}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="food">Food</SelectItem>
+                                  <SelectItem value="transport">Transport</SelectItem>
+                                  <SelectItem value="accommodation">Accommodation</SelectItem>
+                                  <SelectItem value="shopping">Shopping</SelectItem>
+                                  <SelectItem value="sightseeing">Sightseeing</SelectItem>
+                                  <SelectItem value="other">Other</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="date">Date</Label>
+                              <Input
+                                id="date"
+                                type="date"
+                                value={newExpense.date}
+                                onChange={(e) => setNewExpense({...newExpense, date: e.target.value})}
+                                required
+                              />
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Payment Method</Label>
+                            <RadioGroup 
+                              value={newExpense.paymentMethod}
+                              onValueChange={(value) => setNewExpense({...newExpense, paymentMethod: value as any})}
+                              className="grid grid-cols-2 gap-2"
+                            >
+                              <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="cash" id="cash" />
+                                <Label htmlFor="cash">Cash</Label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="upi" id="upi" />
+                                <Label htmlFor="upi">UPI</Label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="card" id="card" />
+                                <Label htmlFor="card">Card</Label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="netbanking" id="netbanking" />
+                                <Label htmlFor="netbanking">Net Banking</Label>
+                              </div>
+                            </RadioGroup>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="description">Description</Label>
+                            <Input
+                              id="description"
+                              value={newExpense.description}
+                              onChange={(e) => setNewExpense({...newExpense, description: e.target.value})}
+                            />
+                          </div>
+                          <Button type="submit">Add Expense</Button>
+                        </form>
+                      </CardContent>
+                    </Card>
 
-              // Budget Tab Content  
-              activeTab === 'budget' && React.createElement('div', { className: 'space-y-6', key: 'budget-content' }, [
-                React.createElement('h2', { className: 'text-3xl font-bold text-red-800 mb-6', key: 'budget-title' }, 'Budget Manager'),
-                React.createElement('div', { className: 'bg-white rounded-xl shadow-lg p-6', key: 'budget-card' }, [
-                  React.createElement('div', { className: 'mb-6', key: 'budget-overview' }, [
-                    React.createElement('div', { className: 'flex justify-between items-center mb-2', key: 'total-budget' }, [
-                      React.createElement('span', { className: 'text-lg font-semibold text-red-800', key: 'total-label' }, 'Total Budget'),
-                      React.createElement('span', { className: 'text-2xl font-bold text-red-800', key: 'total-amount' }, `$${budget.total}`)
-                    ]),
-                    React.createElement('div', { className: 'flex justify-between items-center mb-4', key: 'spent-budget' }, [
-                      React.createElement('span', { className: 'text-gray-600', key: 'spent-label' }, 'Spent'),
-                      React.createElement('span', { className: 'text-lg text-gray-800', key: 'spent-amount' }, `$${budget.spent}`)
-                    ]),
-                    React.createElement('div', { className: 'w-full bg-gray-200 rounded-full h-3', key: 'progress-bg' },
-                      React.createElement('div', {
-                        className: 'bg-gradient-to-r from-amber-400 to-red-600 h-3 rounded-full transition-all',
-                        style: { width: `${(budget.spent / budget.total) * 100}%` },
-                        key: 'progress-bar'
-                      })
-                    ),
-                    React.createElement('div', { className: 'text-right mt-2', key: 'remaining' },
-                      React.createElement('span', { className: 'text-lg font-semibold text-green-600', key: 'remaining-amount' }, `$${budget.total - budget.spent} remaining`)
-                    )
-                  ]),
-                  React.createElement('div', { className: 'grid md:grid-cols-2 gap-6', key: 'budget-actions' }, [
-                    React.createElement('div', { key: 'quick-add' }, [
-                      React.createElement('h3', { className: 'font-bold text-red-800 mb-3', key: 'quick-title' }, 'Quick Add Expense'),
-                      React.createElement('div', { className: 'space-y-2', key: 'expense-buttons' }, [
-                        React.createElement('button', {
-                          onClick: () => addExpense(50, 'food'),
-                          className: 'w-full p-3 bg-amber-100 text-red-800 rounded-lg hover:bg-amber-200 transition-colors',
-                          key: 'meal-btn'
-                        }, 'Meal - $50'),
-                        React.createElement('button', {
-                          onClick: () => addExpense(30, 'transport'),
-                          className: 'w-full p-3 bg-amber-100 text-red-800 rounded-lg hover:bg-amber-200 transition-colors',
-                          key: 'transport-btn'
-                        }, 'Transport - $30'),
-                        React.createElement('button', {
-                          onClick: () => addExpense(100, 'accommodation'),
-                          className: 'w-full p-3 bg-amber-100 text-red-800 rounded-lg hover:bg-amber-200 transition-colors',
-                          key: 'hotel-btn'
-                        }, 'Hotel - $100')
-                      ])
-                    ]),
-                    React.createElement('div', { key: 'categories' }, [
-                      React.createElement('h3', { className: 'font-bold text-red-800 mb-3', key: 'categories-title' }, 'Spending by Category'),
-                      React.createElement('div', { className: 'space-y-2', key: 'categories-list' },
-                        Object.entries(budget.categories).length > 0 ? 
-                          Object.entries(budget.categories).map(([category, amount]) =>
-                            React.createElement('div', { key: category, className: 'flex justify-between items-center p-2 bg-red-50 rounded' }, [
-                              React.createElement('span', { className: 'capitalize text-red-800', key: 'cat-name' }, category),
-                              React.createElement('span', { className: 'font-semibold', key: 'cat-amount' }, `$${amount}`)
-                            ])
-                          ) : React.createElement('p', { className: 'text-gray-500 text-sm', key: 'no-expenses' }, 'No expenses yet')
-                      )
-                    ])
-                  ])
-                ])
-              ]),
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Currency Converter</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                          <Label>Base Currency</Label>
+                          <Select
+                            value={baseCurrency}
+                            onValueChange={setBaseCurrency}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.keys(currencyRates).map(currency => (
+                                <SelectItem key={currency} value={currency}>{currency}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2">
+                          {Object.entries(currencyRates)
+                            .filter(([currency]) => currency !== baseCurrency)
+                            .map(([currency, rate]) => (
+                              <Card key={currency} className="p-3">
+                                <div className="flex justify-between items-center">
+                                  <span className="font-medium">{currency}</span>
+                                  <span className="font-bold">
+                                    {formatCurrency(1 / rate * currencyRates[baseCurrency], baseCurrency)}
+                                  </span>
+                                </div>
+                              </Card>
+                            ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </CardContent>
+              </Card>
 
-              // Schedule Tab
-              activeTab === 'schedule' && React.createElement('div', { className: 'space-y-6', key: 'schedule-content' }, [
-                React.createElement('h2', { className: 'text-3xl font-bold text-red-800 mb-6', key: 'schedule-title' }, 'Smart Schedule'),
-                React.createElement('div', { className: 'bg-white rounded-xl shadow-lg p-6', key: 'schedule-card' }, [
-                  React.createElement('div', { className: 'flex items-center justify-between mb-6', key: 'schedule-header' }, [
-                    React.createElement('h3', { className: 'text-xl font-bold text-red-800', key: 'itinerary-title' }, "Today's Itinerary"),
-                    React.createElement('button', { className: 'bg-red-800 text-amber-100 px-4 py-2 rounded-lg hover:bg-red-700 transition-colors', key: 'reschedule-btn' }, 'Auto-Reschedule')
-                  ]),
-                  React.createElement('div', { className: 'space-y-4', key: 'schedule-items' },
-                    scheduleItems.map((item, index) =>
-                      React.createElement('div', { key: index, className: 'flex items-center p-4 bg-amber-50 rounded-lg border-l-4 border-red-800' }, [
-                        React.createElement('div', { className: 'flex-shrink-0 w-16', key: 'time' },
-                          React.createElement('div', { className: 'bg-red-800 text-amber-100 px-2 py-1 rounded text-sm font-bold text-center', key: 'time-badge' }, item.time)
-                        ),
-                        React.createElement('div', { className: 'ml-4 flex-grow', key: 'details' }, [
-                          React.createElement('h4', { className: 'font-semibold text-red-800', key: 'activity' }, item.activity),
-                          React.createElement('p', { className: 'text-sm text-gray-600', key: 'location' }, `📍 ${item.location} • ⏱️ ${item.duration}`)
-                        ]),
-                        React.createElement(Clock, { className: 'h-5 w-5 text-amber-600', key: 'clock' })
-                      ])
-                    )
-                  ),
-                  React.createElement('div', { className: 'mt-6 p-4 bg-green-50 rounded-lg border border-green-200', key: 'suggestion' },
-                    React.createElement('div', { className: 'flex items-center text-green-700', key: 'suggestion-content' }, [
-                      React.createElement('span', { className: 'font-semibold', key: 'suggestion-label' }, 'Smart Suggestion:'),
-                      React.createElement('span', { className: 'ml-2', key: 'suggestion-text' }, 'Weather is perfect for outdoor activities today!')
-                    ])
-                  )
-                ])
-              ]),
+              <Card>
+                <CardHeader>
+                  <CardTitle>Expense History</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {expenses.length === 0 ? (
+                    <p className="text-gray-500">No expenses recorded yet.</p>
+                  ) : (
+                    <div className="space-y-4">
+                      {expenses.map((expense) => (
+                        <Card key={expense.id}>
+                          <CardHeader>
+                            <div className="flex justify-between items-center">
+                              <div>
+                                <CardTitle>
+                                  {formatCurrency(expense.convertedAmount, baseCurrency)}
+                                  {expense.currency !== baseCurrency && (
+                                    <span className="text-sm text-gray-500 ml-2">
+                                      ({formatCurrency(expense.amount, expense.currency)})
+                                    </span>
+                                  )}
+                                </CardTitle>
+                                <CardDescription>
+                                  {expense.category} • {expense.date} • {expense.paymentMethod}
+                                </CardDescription>
+                              </div>
+                              <Button variant="ghost" size="sm">Edit</Button>
+                            </div>
+                          </CardHeader>
+                          {expense.description && (
+                            <CardContent>
+                              <p>{expense.description}</p>
+                            </CardContent>
+                          )}
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
-              // Recommendations Tab
-              activeTab === 'recommendations' && React.createElement('div', { className: 'space-y-6', key: 'recs-content' }, [
-                React.createElement('h2', { className: 'text-3xl font-bold text-red-800 mb-6', key: 'recs-title' }, 'Personalized Discoveries'),
-                React.createElement('div', { className: 'bg-white rounded-xl shadow-lg p-6 mb-6', key: 'preferences' }, [
-                  React.createElement('h3', { className: 'text-xl font-bold text-red-800 mb-4', key: 'pref-title' }, 'Based on Your Preferences'),
-                  React.createElement('div', { className: 'flex flex-wrap gap-2 mb-4', key: 'interests' },
-                    userPreferences.interests.map((interest, index) =>
-                      React.createElement('span', { key: index, className: 'bg-amber-100 text-red-800 px-3 py-1 rounded-full text-sm' }, interest)
-                    )
-                  )
-                ]),
-                React.createElement('div', { className: 'grid md:grid-cols-2 lg:grid-cols-3 gap-6', key: 'recs-grid' },
-                  recommendations.map((rec, index) =>
-                    React.createElement('div', { key: index, className: 'bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6 border border-amber-200' }, [
-                      React.createElement('div', { className: 'flex items-center justify-between mb-3', key: 'rec-header' }, [
-                        React.createElement('h3', { className: 'text-lg font-bold text-red-800', key: 'rec-name' }, rec.name),
-                        React.createElement('div', { className: 'bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm font-semibold', key: 'match' }, rec.match)
-                      ]),
-                      React.createElement('p', { className: 'text-gray-600 text-sm mb-3', key: 'reason' }, rec.reason),
-                      React.createElement('div', { className: 'flex items-center justify-between', key: 'rec-footer' }, [
-                        React.createElement('span', { className: 'text-amber-600 font-semibold', key: 'price' }, rec.price),
-                        React.createElement('button', { className: 'bg-red-800 text-amber-100 px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition-colors', key: 'explore-btn' }, 'Explore')
-                      ])
-                    ])
-                  )
-                )
-              ]),
+          {/* Local Connections Tab */}
+          {activeTab === 'connections' && (
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Add Local Connection</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Name</Label>
+                        <Input
+                          id="name"
+                          value={newConnection.name}
+                          onChange={(e) => setNewConnection({...newConnection, name: e.target.value})}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="type">Connection Type</Label>
+                        <Select
+                          value={newConnection.type}
+                          onValueChange={(value) => setNewConnection({...newConnection, type: value as any})}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="guide">Guide</SelectItem>
+                            <SelectItem value="driver">Driver</SelectItem>
+                            <SelectItem value="host">Local Host</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="location">Location</Label>
+                        <Input
+                          id="location"
+                          value={newConnection.location}
+                          onChange={(e) => setNewConnection({...newConnection, location: e.target.value})}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="contact">Contact</Label>
+                        <Input
+                          id="contact"
+                          value={newConnection.contact}
+                          onChange={(e) => setNewConnection({...newConnection, contact: e.target.value})}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="notes">Notes</Label>
+                      <Textarea
+                        id="notes"
+                        value={newConnection.notes}
+                        onChange={(e) => setNewConnection({...newConnection, notes: e.target.value})}
+                        rows={2}
+                      />
+                    </div>
+                    <Button type="button" onClick={() => {
+                      setConnections([...connections, {
+                        ...newConnection,
+                        id: Date.now().toString()
+                      }]);
+                      setNewConnection({
+                        name: '',
+                        location: '',
+                        contact: '',
+                        type: 'guide',
+                        notes: ''
+                      });
+                    }}>
+                      Add Connection
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
 
-              // Translation Tab
-              activeTab === 'translate' && React.createElement('div', { className: 'space-y-6', key: 'translate-content' }, [
-                React.createElement('h2', { className: 'text-3xl font-bold text-red-800 mb-6', key: 'translate-title' }, 'Universal Translator'),
-                React.createElement('div', { className: 'bg-white rounded-xl shadow-lg p-6 mb-6', key: 'translator' }, [
-                  React.createElement('div', { className: 'grid md:grid-cols-2 gap-6', key: 'translate-grid' }, [
-                    React.createElement('div', { key: 'from-section' }, [
-                      React.createElement('label', { className: 'block text-red-800 font-semibold mb-2', key: 'from-label' }, 'From'),
-                      React.createElement('textarea', {
-                        className: 'w-full p-3 border border-amber-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-300',
-                        rows: '4',
-                        placeholder: 'Enter text to translate...',
-                        value: translation.from,
-                        onChange: (e) => setTranslation({...translation, from: e.target.value}),
-                        key: 'from-textarea'
-                      })
-                    ]),
-                    React.createElement('div', { key: 'to-section' }, [
-                      React.createElement('label', { className: 'block text-red-800 font-semibold mb-2', key: 'to-label' }, 'To'),
-                      React.createElement('div', { className: 'w-full p-3 border border-amber-200 rounded-lg bg-amber-50 min-h-[100px]', key: 'to-output' },
-                        translation.from ? `Translated: ${translation.from}` : 'Translation will appear here...'
-                      )
-                    ])
-                  ]),
-                  React.createElement('div', { className: 'mt-4 flex justify-center', key: 'translate-btn-container' },
-                    React.createElement('button', { className: 'bg-red-800 text-amber-100 px-6 py-3 rounded-lg hover:bg-red-700 transition-colors', key: 'translate-btn' }, 'Translate')
-                  )
-                ]),
-                React.createElement('div', { className: 'bg-white rounded-xl shadow-lg p-6', key: 'phrases' }, [
-                  React.createElement('h3', { className: 'text-xl font-bold text-red-800 mb-4', key: 'phrases-title' }, 'Common Phrases'),
-                  React.createElement('div', { className: 'grid md:grid-cols-2 gap-4', key: 'phrases-grid' },
-                    Object.entries(commonPhrases).map(([phrase, translations]) =>
-                      React.createElement('div', { key: phrase, className: 'p-4 bg-amber-50 rounded-lg' }, [
-                        React.createElement('h4', { className: 'font-semibold text-red-800 mb-2 capitalize', key: 'phrase-title' }, phrase),
-                        React.createElement('div', { className: 'space-y-1 text-sm', key: 'phrase-translations' }, [
-                          React.createElement('p', { key: 'french' }, [React.createElement('span', { className: 'font-medium', key: 'fr-label' }, 'French: '), translations.french]),
-                          React.createElement('p', { key: 'spanish' }, [React.createElement('span', { className: 'font-medium', key: 'es-label' }, 'Spanish: '), translations.spanish]),
-                          React.createElement('p', { key: 'japanese' }, [React.createElement('span', { className: 'font-medium', key: 'ja-label' }, 'Japanese: '), translations.japanese])
-                        ])
-                      ])
-                    )
-                  )
-                ])
-              ]),
+              <Card>
+                <CardHeader>
+                  <CardTitle>Your Connections</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {connections.length === 0 ? (
+                    <p className="text-gray-500">No connections added yet.</p>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {connections.map((connection) => (
+                        <Card key={connection.id}>
+                          <CardHeader>
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <CardTitle>{connection.name}</CardTitle>
+                                <CardDescription className="capitalize">
+                                  {connection.type} • {connection.location}
+                                </CardDescription>
+                              </div>
+                              <Badge variant="outline">{connection.type}</Badge>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-2">
+                              <div>
+                                <p className="font-medium">Contact:</p>
+                                <p>{connection.contact}</p>
+                              </div>
+                              {connection.notes && (
+                                <div>
+                                  <p className="font-medium">Notes:</p>
+                                  <p>{connection.notes}</p>
+                                </div>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
-              // Social Tab
-              activeTab === 'social' && React.createElement('div', { className: 'space-y-6', key: 'social-content' }, [
-                React.createElement('h2', { className: 'text-3xl font-bold text-red-800 mb-6', key: 'social-title' }, 'Connect & Share'),
-                React.createElement('div', { className: 'grid md:grid-cols-2 gap-6', key: 'social-grid' }, [
-                  React.createElement('div', { className: 'bg-white rounded-xl shadow-lg p-6', key: 'meetups' }, [
-                    React.createElement('h3', { className: 'text-xl font-bold text-red-800 mb-4', key: 'meetups-title' }, 'Local Meetups'),
-                    React.createElement('div', { className: 'space-y-4', key: 'meetups-list' }, [
-                      React.createElement('div', { className: 'p-3 bg-amber-50 rounded-lg border-l-4 border-red-800', key: 'meetup1' }, [
-                        React.createElement('h4', { className: 'font-semibold text-red-800', key: 'meetup1-title' }, 'Photography Walk'),
-                        React.createElement('p', { className: 'text-sm text-gray-600', key: 'meetup1-details' }, 'Tomorrow, 10:00 AM • 12 people interested')
-                      ]),
-                      React.createElement('div', { className: 'p-3 bg-amber-50 rounded-lg border-l-4 border-red-800', key: 'meetup2' }, [
-                        React.createElement('h4', { className: 'font-semibold text-red-800', key: 'meetup2-title' }, 'Food Tour'),
-                        React.createElement('p', { className:
-<!-- just testing deployment -->
+          {/* Language Interpreter Tab */}
+          {activeTab === 'language' && (
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Add Useful Phrase</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="english">English Phrase</Label>
+                      <Input
+                        id="english"
+                        value={newPhrase.english}
+                        onChange={(e) => setNewPhrase({...newPhrase, english: e.target.value})}
+                        required
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="local">Local Language</Label>
+                        <Input
+                          id="local"
+                          value={newPhrase.local}
+                          onChange={(e) => setNewPhrase({...newPhrase, local: e.target.value})}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="pronunciation">Pronunciation</Label>
+                        <Input
+                          id="pronunciation"
+                          value={newPhrase.pronunciation}
+                          onChange={(e) => setNewPhrase({...newPhrase, pronunciation: e.target.value})}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Category</Label>
+                      <RadioGroup 
+                        value={newPhrase.category}
+                        onValueChange={(value) => setNewPhrase({...newPhrase, category: value as any})}
+                        className="grid grid-cols-4 gap-2"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="greetings" id="greetings" />
+                          <Label htmlFor="greetings">Greetings</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="directions" id="directions" />
+                          <Label htmlFor="directions">Directions</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="food" id="food" />
+                          <Label htmlFor="food">Food</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="emergency" id="emergency" />
+                          <Label htmlFor="emergency">Emergency</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    <Button type="button" onClick={() => {
+                      setPhrases([...phrases, {
+                        ...newPhrase,
+                        id: Date.now().toString()
+                      }]);
+                      setNewPhrase({
+                        english: '',
+                        local: '',
+                        pronunciation: '',
+                        category: 'greetings'
+                      });
+                    }}>
+                      Add Phrase
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Your Phrasebook</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex gap-2 overflow-x-auto pb-2">
+                      <Button 
+                        variant="outline"
+                        onClick={() => {
+                          const categories = ['greetings', 'directions', 'food', 'emergency'];
+                          const samplePhrases = [
+                            {
+                              english: 'Thank you',
+                              local: 'धन्यवाद',
+                              pronunciation: 'dhun-yuh-vaad',
+                              category: 'greetings'
+                            },
+                            {
+                              english: 'Where is the hospital?',
+                              local: 'अस्पताल कहाँ है?',
+                              pronunciation: 'as-pa-taal ka-han hai?',
+                              category: 'directions'
+                            },
+                            {
+                              english: 'I need help',
+                              local: 'मुझे मदद चाहिए',
+                              pronunciation: 'mujhe madad chaahiye',
+                              category: 'emergency'
+                            }
+                          ];
+                          setPhrases([...phrases, ...samplePhrases.map((p, i) => ({
+                            ...p,
+                            id: `sample-${i}`
+                          }))]);
+                        }}
+                      >
+                        Load Sample Phrases
+                      </Button>
+                    </div>
+
+                    {phrases.length === 0 ? (
+                      <p className="text-gray-500">No phrases added yet.</p>
+                    ) : (
+                      <div className="space-y-4">
+                        {['greetings', 'directions', 'food', 'emergency'].map((category) => {
+                          const categoryPhrases = phrases.filter(p => p.category === category);
+                          if (categoryPhrases.length === 0) return null;
+                          
+                          return (
+                            <div key={category}>
+                              <h3 className="font-semibold capitalize mb-2">{category}</h3>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {categoryPhrases.map((phrase) => (
+                                  <Card key={phrase.id}>
+                                    <CardHeader>
+                                      <CardTitle>{phrase.english}</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                      <div className="space-y-2">
+                                        <div>
+                                          <p className="font-medium">In local language:</p>
+                                          <p className="text-lg">{phrase.local}</p>
+                                        </div>
+                                        {phrase.pronunciation && (
+                                          <div>
+                                            <p className="font-medium">Pronunciation:</p>
+                                            <p className="italic">{phrase.pronunciation}</p>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
