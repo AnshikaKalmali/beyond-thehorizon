@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beyond the Horizon</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { MapPin, Calendar, DollarSign, Globe, MessageCircle, Users, Book, Settings, Search, Plus, Minus, Star, Clock, Navigation } = lucide;
+
+        const TravelCompanionApp = () => {
+          const [activeTab, setActiveTab] = useState('stories');
+          const [budget, setBudget] = useState({ total: 1000, spent: 0, categories: {} });
+          const [searchQuery, setSearchQuery] = useState('');
+          const [selectedPlace, setSelectedPlace] = useState(null);
+          const [userPreferences, setUserPreferences] = useState({
+            interests: ['history', 'culture', 'food'],
+            budget: 'medium',
+            travelStyle: 'explorer'
+          });
+          const [translation, setTranslation] = useState({ from: '', to: '', result: '' });
+
+          const placeStories = {
+            'paris': {
+              name: 'Paris, France',
+              story: 'The City of Light earned its nickname from being one of the first cities to use gas street lighting extensively. The Eiffel Tower, built for the 1889 World Expo, was initially criticized by Parisians but became the world\'s most beloved iron lady.',
+              facts: ['Home to the world\'s largest art museum - The Louvre', 'Has over 40,000 restaurants', 'The Metro system has 300 stations'],
+              rating: 4.8,
+              bestTime: 'April-June, September-October',
+              budget: '$150-300/day'
+            },
+            'tokyo': {
+              name: 'Tokyo, Japan',
+              story: 'Once called Edo, Tokyo became the capital in 1868 when Emperor Meiji moved from Kyoto. The name literally means "Eastern Capital". This mega-city seamlessly blends ultra-modern technology with ancient traditions.',
+              facts: ['Most populous metropolitan area in the world', 'Has more Michelin stars than any other city', 'Rebuilt twice after major disasters'],
+              rating: 4.9,
+              bestTime: 'March-May, September-November',
+              budget: '$100-250/day'
+            },
+            'rome': {
+              name: 'Rome, Italy',
+              story: 'The Eternal City, founded in 753 BC, was once the center of the mighty Roman Empire. Legend says it was founded by twins Romulus and Remus, raised by a wolf. Every corner tells a story spanning over 2,500 years.',
+              facts: ['Built on seven hills', 'Has more fountains than any other city', 'Vatican City is within Rome'],
+              rating: 4.7,
+              bestTime: 'April-June, September-October',
+              budget: '$120-280/day'
+            }
+          };
+
+          const recommendations = [
+            { name: 'Santorini, Greece', match: '95%', reason: 'Perfect for culture & history lovers', price: '$200/day' },
+            { name: 'Kyoto, Japan', match: '92%', reason: 'Rich cultural heritage', price: '$150/day' },
+            { name: 'Barcelona, Spain', match: '88%', reason: 'Great food scene', price: '$180/day' }
+          ];
+
+          const scheduleItems = [
+            { time: '09:00', activity: 'Visit Louvre Museum', duration: '3h', location: 'Paris' },
+            { time: '14:00', activity: 'Lunch at local bistro', duration: '1h', location: 'Montmartre' },
+            { time: '16:00', activity: 'Eiffel Tower visit', duration: '2h', location: 'Champ de Mars' }
+          ];
+
+          const commonPhrases = {
+            'hello': { english: 'Hello', french: 'Bonjour', spanish: 'Hola', japanese: 'Konnichiwa' },
+            'thank you': { english: 'Thank you', french: 'Merci', spanish: 'Gracias', japanese: 'Arigato' },
+            'excuse me': { english: 'Excuse me', french: 'Excusez-moi', spanish: 'Perdón', japanese: 'Sumimasen' },
+            'how much': { english: 'How much?', french: 'Combien?', spanish: '¿Cuánto?', japanese: 'Ikura desu ka?' }
+          };
+
+          const handleSearch = (query) => {
+            const place = Object.keys(placeStories).find(key => 
+              key.toLowerCase().includes(query.toLowerCase()) || 
+              placeStories[key].name.toLowerCase().includes(query.toLowerCase())
+            );
+            if (place) {
+              setSelectedPlace(placeStories[place]);
+            }
+          };
+
+          const addExpense = (amount, category) => {
+            setBudget(prev => ({
+              ...prev,
+              spent: prev.spent + amount,
+              categories: {
+                ...prev.categories,
+                [category]: (prev.categories[category] || 0) + amount
+              }
+            }));
+          };
+
+          const TabButton = ({ id, icon: Icon, label, active }) => (
+            React.createElement('button', {
+              onClick: () => setActiveTab(id),
+              className: `flex flex-col items-center p-3 rounded-lg transition-all ${
+                active 
+                  ? 'bg-red-800 text-amber-100 shadow-lg' 
+                  : 'text-red-800 hover:bg-red-50'
+              }`
+            }, [
+              React.createElement(Icon, { size: 20, key: 'icon' }),
+              React.createElement('span', { className: 'text-xs mt-1', key: 'label' }, label)
+            ])
+          );
+
+          return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-amber-50 to-red-50' }, [
+            // Header
+            React.createElement('div', { className: 'bg-red-800 text-amber-100 p-4 shadow-lg', key: 'header' }, [
+              React.createElement('div', { className: 'flex items-center justify-between', key: 'header-content' }, [
+                React.createElement('div', { className: 'flex items-center space-x-3', key: 'logo' }, [
+                  React.createElement(Navigation, { className: 'h-8 w-8', key: 'nav-icon' }),
+                  React.createElement('h1', { className: 'text-2xl font-bold', key: 'title' }, 'Beyond the Horizon')
+                ]),
+                React.createElement(Settings, { className: 'h-6 w-6 cursor-pointer hover:text-amber-200', key: 'settings' })
+              ]),
+              React.createElement('div', { className: 'mt-4 relative', key: 'search-bar' }, [
+                React.createElement('input', {
+                  type: 'text',
+                  placeholder: 'Search for places, stories, or experiences...',
+                  className: 'w-full p-3 rounded-lg bg-amber-100 text-red-800 placeholder-red-400 focus:outline-none focus:ring-2 focus:ring-amber-300',
+                  value: searchQuery,
+                  onChange: (e) => setSearchQuery(e.target.value),
+                  onKeyPress: (e) => e.key === 'Enter' && handleSearch(searchQuery),
+                  key: 'search-input'
+                }),
+                React.createElement(Search, { 
+                  className: 'absolute right-3 top-3 h-5 w-5 text-red-600 cursor-pointer',
+                  onClick: () => handleSearch(searchQuery),
+                  key: 'search-icon'
+                })
+              ])
+            ]),
+            
+            // Navigation Tabs
+            React.createElement('div', { className: 'bg-amber-100 p-4 shadow-sm', key: 'nav-tabs' },
+              React.createElement('div', { className: 'flex justify-around max-w-2xl mx-auto' }, [
+                React.createElement(TabButton, { id: 'stories', icon: Book, label: 'Stories', active: activeTab === 'stories', key: 'stories-tab' }),
+                React.createElement(TabButton, { id: 'budget', icon: DollarSign, label: 'Budget', active: activeTab === 'budget', key: 'budget-tab' }),
+                React.createElement(TabButton, { id: 'schedule', icon: Calendar, label: 'Schedule', active: activeTab === 'schedule', key: 'schedule-tab' }),
+                React.createElement(TabButton, { id: 'recommendations', icon: Star, label: 'Discover', active: activeTab === 'recommendations', key: 'recs-tab' }),
+                React.createElement(TabButton, { id: 'translate', icon: Globe, label: 'Translate', active: activeTab === 'translate', key: 'translate-tab' }),
+                React.createElement(TabButton, { id: 'social', icon: Users, label: 'Connect', active: activeTab === 'social', key: 'social-tab' })
+              ])
+            ),
+
+            // Main Content
+            React.createElement('div', { className: 'p-6 max-w-4xl mx-auto', key: 'main-content' }, [
+              
+              // Stories Tab Content
+              activeTab === 'stories' && React.createElement('div', { className: 'space-y-6', key: 'stories-content' }, [
+                React.createElement('h2', { className: 'text-3xl font-bold text-red-800 mb-6', key: 'stories-title' }, 'Discover Stories'),
+                
+                selectedPlace ? React.createElement('div', { className: 'bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-800', key: 'selected-place' }, [
+                  React.createElement('div', { className: 'flex items-center justify-between mb-4', key: 'place-header' }, [
+                    React.createElement('h3', { className: 'text-2xl font-bold text-red-800', key: 'place-name' }, selectedPlace.name),
+                    React.createElement('div', { className: 'flex items-center text-amber-600', key: 'rating' }, [
+                      React.createElement(Star, { className: 'h-5 w-5 fill-current', key: 'star' }),
+                      React.createElement('span', { className: 'ml-1', key: 'rating-num' }, selectedPlace.rating)
+                    ])
+                  ]),
+                  React.createElement('p', { className: 'text-gray-700 mb-4 leading-relaxed', key: 'story' }, selectedPlace.story),
+                  React.createElement('div', { className: 'grid md:grid-cols-2 gap-4 mb-4', key: 'details' }, [
+                    React.createElement('div', { className: 'bg-amber-50 p-4 rounded-lg', key: 'facts' }, [
+                      React.createElement('h4', { className: 'font-semibold text-red-800 mb-2', key: 'facts-title' }, 'Quick Facts'),
+                      React.createElement('ul', { className: 'space-y-1', key: 'facts-list' },
+                        selectedPlace.facts.map((fact, index) =>
+                          React.createElement('li', { key: index, className: 'text-sm text-gray-600' }, `• ${fact}`)
+                        )
+                      )
+                    ]),
+                    React.createElement('div', { className: 'bg-red-50 p-4 rounded-lg', key: 'travel-info' }, [
+                      React.createElement('h4', { className: 'font-semibold text-red-800 mb-2', key: 'travel-title' }, 'Travel Info'),
+                      React.createElement('p', { className: 'text-sm text-gray-600 mb-1', key: 'best-time' }, `Best Time: ${selectedPlace.bestTime}`),
+                      React.createElement('p', { className: 'text-sm text-gray-600', key: 'budget-info' }, `Budget: ${selectedPlace.budget}`)
+                    ])
+                  ])
+                ]) : React.createElement('div', { className: 'grid md:grid-cols-3 gap-4', key: 'places-grid' },
+                  Object.entries(placeStories).map(([key, place]) =>
+                    React.createElement('div', {
+                      key: key,
+                      className: 'bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow cursor-pointer p-6 border border-amber-200',
+                      onClick: () => setSelectedPlace(place)
+                    }, [
+                      React.createElement('h3', { className: 'text-xl font-bold text-red-800 mb-2', key: 'card-name' }, place.name),
+                      React.createElement('p', { className: 'text-gray-600 text-sm line-clamp-3', key: 'card-story' }, `${place.story.substring(0, 100)}...`),
+                      React.createElement('div', { className: 'mt-3 flex items-center justify-between', key: 'card-footer' }, [
+                        React.createElement('span', { className: 'text-amber-600 text-sm', key: 'explore' }, 'Click to explore'),
+                        React.createElement('div', { className: 'flex items-center text-amber-600', key: 'card-rating' }, [
+                          React.createElement(Star, { className: 'h-4 w-4 fill-current', key: 'card-star' }),
+                          React.createElement('span', { className: 'ml-1 text-sm', key: 'card-rating-num' }, place.rating)
+                        ])
+                      ])
+                    ])
+                  )
+                )
+              ]),
+
+              // Budget Tab Content  
+              activeTab === 'budget' && React.createElement('div', { className: 'space-y-6', key: 'budget-content' }, [
+                React.createElement('h2', { className: 'text-3xl font-bold text-red-800 mb-6', key: 'budget-title' }, 'Budget Manager'),
+                React.createElement('div', { className: 'bg-white rounded-xl shadow-lg p-6', key: 'budget-card' }, [
+                  React.createElement('div', { className: 'mb-6', key: 'budget-overview' }, [
+                    React.createElement('div', { className: 'flex justify-between items-center mb-2', key: 'total-budget' }, [
+                      React.createElement('span', { className: 'text-lg font-semibold text-red-800', key: 'total-label' }, 'Total Budget'),
+                      React.createElement('span', { className: 'text-2xl font-bold text-red-800', key: 'total-amount' }, `$${budget.total}`)
+                    ]),
+                    React.createElement('div', { className: 'flex justify-between items-center mb-4', key: 'spent-budget' }, [
+                      React.createElement('span', { className: 'text-gray-600', key: 'spent-label' }, 'Spent'),
+                      React.createElement('span', { className: 'text-lg text-gray-800', key: 'spent-amount' }, `$${budget.spent}`)
+                    ]),
+                    React.createElement('div', { className: 'w-full bg-gray-200 rounded-full h-3', key: 'progress-bg' },
+                      React.createElement('div', {
+                        className: 'bg-gradient-to-r from-amber-400 to-red-600 h-3 rounded-full transition-all',
+                        style: { width: `${(budget.spent / budget.total) * 100}%` },
+                        key: 'progress-bar'
+                      })
+                    ),
+                    React.createElement('div', { className: 'text-right mt-2', key: 'remaining' },
+                      React.createElement('span', { className: 'text-lg font-semibold text-green-600', key: 'remaining-amount' }, `$${budget.total - budget.spent} remaining`)
+                    )
+                  ]),
+                  React.createElement('div', { className: 'grid md:grid-cols-2 gap-6', key: 'budget-actions' }, [
+                    React.createElement('div', { key: 'quick-add' }, [
+                      React.createElement('h3', { className: 'font-bold text-red-800 mb-3', key: 'quick-title' }, 'Quick Add Expense'),
+                      React.createElement('div', { className: 'space-y-2', key: 'expense-buttons' }, [
+                        React.createElement('button', {
+                          onClick: () => addExpense(50, 'food'),
+                          className: 'w-full p-3 bg-amber-100 text-red-800 rounded-lg hover:bg-amber-200 transition-colors',
+                          key: 'meal-btn'
+                        }, 'Meal - $50'),
+                        React.createElement('button', {
+                          onClick: () => addExpense(30, 'transport'),
+                          className: 'w-full p-3 bg-amber-100 text-red-800 rounded-lg hover:bg-amber-200 transition-colors',
+                          key: 'transport-btn'
+                        }, 'Transport - $30'),
+                        React.createElement('button', {
+                          onClick: () => addExpense(100, 'accommodation'),
+                          className: 'w-full p-3 bg-amber-100 text-red-800 rounded-lg hover:bg-amber-200 transition-colors',
+                          key: 'hotel-btn'
+                        }, 'Hotel - $100')
+                      ])
+                    ]),
+                    React.createElement('div', { key: 'categories' }, [
+                      React.createElement('h3', { className: 'font-bold text-red-800 mb-3', key: 'categories-title' }, 'Spending by Category'),
+                      React.createElement('div', { className: 'space-y-2', key: 'categories-list' },
+                        Object.entries(budget.categories).length > 0 ? 
+                          Object.entries(budget.categories).map(([category, amount]) =>
+                            React.createElement('div', { key: category, className: 'flex justify-between items-center p-2 bg-red-50 rounded' }, [
+                              React.createElement('span', { className: 'capitalize text-red-800', key: 'cat-name' }, category),
+                              React.createElement('span', { className: 'font-semibold', key: 'cat-amount' }, `$${amount}`)
+                            ])
+                          ) : React.createElement('p', { className: 'text-gray-500 text-sm', key: 'no-expenses' }, 'No expenses yet')
+                      )
+                    ])
+                  ])
+                ])
+              ]),
+
+              // Schedule Tab
+              activeTab === 'schedule' && React.createElement('div', { className: 'space-y-6', key: 'schedule-content' }, [
+                React.createElement('h2', { className: 'text-3xl font-bold text-red-800 mb-6', key: 'schedule-title' }, 'Smart Schedule'),
+                React.createElement('div', { className: 'bg-white rounded-xl shadow-lg p-6', key: 'schedule-card' }, [
+                  React.createElement('div', { className: 'flex items-center justify-between mb-6', key: 'schedule-header' }, [
+                    React.createElement('h3', { className: 'text-xl font-bold text-red-800', key: 'itinerary-title' }, "Today's Itinerary"),
+                    React.createElement('button', { className: 'bg-red-800 text-amber-100 px-4 py-2 rounded-lg hover:bg-red-700 transition-colors', key: 'reschedule-btn' }, 'Auto-Reschedule')
+                  ]),
+                  React.createElement('div', { className: 'space-y-4', key: 'schedule-items' },
+                    scheduleItems.map((item, index) =>
+                      React.createElement('div', { key: index, className: 'flex items-center p-4 bg-amber-50 rounded-lg border-l-4 border-red-800' }, [
+                        React.createElement('div', { className: 'flex-shrink-0 w-16', key: 'time' },
+                          React.createElement('div', { className: 'bg-red-800 text-amber-100 px-2 py-1 rounded text-sm font-bold text-center', key: 'time-badge' }, item.time)
+                        ),
+                        React.createElement('div', { className: 'ml-4 flex-grow', key: 'details' }, [
+                          React.createElement('h4', { className: 'font-semibold text-red-800', key: 'activity' }, item.activity),
+                          React.createElement('p', { className: 'text-sm text-gray-600', key: 'location' }, `📍 ${item.location} • ⏱️ ${item.duration}`)
+                        ]),
+                        React.createElement(Clock, { className: 'h-5 w-5 text-amber-600', key: 'clock' })
+                      ])
+                    )
+                  ),
+                  React.createElement('div', { className: 'mt-6 p-4 bg-green-50 rounded-lg border border-green-200', key: 'suggestion' },
+                    React.createElement('div', { className: 'flex items-center text-green-700', key: 'suggestion-content' }, [
+                      React.createElement('span', { className: 'font-semibold', key: 'suggestion-label' }, 'Smart Suggestion:'),
+                      React.createElement('span', { className: 'ml-2', key: 'suggestion-text' }, 'Weather is perfect for outdoor activities today!')
+                    ])
+                  )
+                ])
+              ]),
+
+              // Recommendations Tab
+              activeTab === 'recommendations' && React.createElement('div', { className: 'space-y-6', key: 'recs-content' }, [
+                React.createElement('h2', { className: 'text-3xl font-bold text-red-800 mb-6', key: 'recs-title' }, 'Personalized Discoveries'),
+                React.createElement('div', { className: 'bg-white rounded-xl shadow-lg p-6 mb-6', key: 'preferences' }, [
+                  React.createElement('h3', { className: 'text-xl font-bold text-red-800 mb-4', key: 'pref-title' }, 'Based on Your Preferences'),
+                  React.createElement('div', { className: 'flex flex-wrap gap-2 mb-4', key: 'interests' },
+                    userPreferences.interests.map((interest, index) =>
+                      React.createElement('span', { key: index, className: 'bg-amber-100 text-red-800 px-3 py-1 rounded-full text-sm' }, interest)
+                    )
+                  )
+                ]),
+                React.createElement('div', { className: 'grid md:grid-cols-2 lg:grid-cols-3 gap-6', key: 'recs-grid' },
+                  recommendations.map((rec, index) =>
+                    React.createElement('div', { key: index, className: 'bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6 border border-amber-200' }, [
+                      React.createElement('div', { className: 'flex items-center justify-between mb-3', key: 'rec-header' }, [
+                        React.createElement('h3', { className: 'text-lg font-bold text-red-800', key: 'rec-name' }, rec.name),
+                        React.createElement('div', { className: 'bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm font-semibold', key: 'match' }, rec.match)
+                      ]),
+                      React.createElement('p', { className: 'text-gray-600 text-sm mb-3', key: 'reason' }, rec.reason),
+                      React.createElement('div', { className: 'flex items-center justify-between', key: 'rec-footer' }, [
+                        React.createElement('span', { className: 'text-amber-600 font-semibold', key: 'price' }, rec.price),
+                        React.createElement('button', { className: 'bg-red-800 text-amber-100 px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition-colors', key: 'explore-btn' }, 'Explore')
+                      ])
+                    ])
+                  )
+                )
+              ]),
+
+              // Translation Tab
+              activeTab === 'translate' && React.createElement('div', { className: 'space-y-6', key: 'translate-content' }, [
+                React.createElement('h2', { className: 'text-3xl font-bold text-red-800 mb-6', key: 'translate-title' }, 'Universal Translator'),
+                React.createElement('div', { className: 'bg-white rounded-xl shadow-lg p-6 mb-6', key: 'translator' }, [
+                  React.createElement('div', { className: 'grid md:grid-cols-2 gap-6', key: 'translate-grid' }, [
+                    React.createElement('div', { key: 'from-section' }, [
+                      React.createElement('label', { className: 'block text-red-800 font-semibold mb-2', key: 'from-label' }, 'From'),
+                      React.createElement('textarea', {
+                        className: 'w-full p-3 border border-amber-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-300',
+                        rows: '4',
+                        placeholder: 'Enter text to translate...',
+                        value: translation.from,
+                        onChange: (e) => setTranslation({...translation, from: e.target.value}),
+                        key: 'from-textarea'
+                      })
+                    ]),
+                    React.createElement('div', { key: 'to-section' }, [
+                      React.createElement('label', { className: 'block text-red-800 font-semibold mb-2', key: 'to-label' }, 'To'),
+                      React.createElement('div', { className: 'w-full p-3 border border-amber-200 rounded-lg bg-amber-50 min-h-[100px]', key: 'to-output' },
+                        translation.from ? `Translated: ${translation.from}` : 'Translation will appear here...'
+                      )
+                    ])
+                  ]),
+                  React.createElement('div', { className: 'mt-4 flex justify-center', key: 'translate-btn-container' },
+                    React.createElement('button', { className: 'bg-red-800 text-amber-100 px-6 py-3 rounded-lg hover:bg-red-700 transition-colors', key: 'translate-btn' }, 'Translate')
+                  )
+                ]),
+                React.createElement('div', { className: 'bg-white rounded-xl shadow-lg p-6', key: 'phrases' }, [
+                  React.createElement('h3', { className: 'text-xl font-bold text-red-800 mb-4', key: 'phrases-title' }, 'Common Phrases'),
+                  React.createElement('div', { className: 'grid md:grid-cols-2 gap-4', key: 'phrases-grid' },
+                    Object.entries(commonPhrases).map(([phrase, translations]) =>
+                      React.createElement('div', { key: phrase, className: 'p-4 bg-amber-50 rounded-lg' }, [
+                        React.createElement('h4', { className: 'font-semibold text-red-800 mb-2 capitalize', key: 'phrase-title' }, phrase),
+                        React.createElement('div', { className: 'space-y-1 text-sm', key: 'phrase-translations' }, [
+                          React.createElement('p', { key: 'french' }, [React.createElement('span', { className: 'font-medium', key: 'fr-label' }, 'French: '), translations.french]),
+                          React.createElement('p', { key: 'spanish' }, [React.createElement('span', { className: 'font-medium', key: 'es-label' }, 'Spanish: '), translations.spanish]),
+                          React.createElement('p', { key: 'japanese' }, [React.createElement('span', { className: 'font-medium', key: 'ja-label' }, 'Japanese: '), translations.japanese])
+                        ])
+                      ])
+                    )
+                  )
+                ])
+              ]),
+
+              // Social Tab
+              activeTab === 'social' && React.createElement('div', { className: 'space-y-6', key: 'social-content' }, [
+                React.createElement('h2', { className: 'text-3xl font-bold text-red-800 mb-6', key: 'social-title' }, 'Connect & Share'),
+                React.createElement('div', { className: 'grid md:grid-cols-2 gap-6', key: 'social-grid' }, [
+                  React.createElement('div', { className: 'bg-white rounded-xl shadow-lg p-6', key: 'meetups' }, [
+                    React.createElement('h3', { className: 'text-xl font-bold text-red-800 mb-4', key: 'meetups-title' }, 'Local Meetups'),
+                    React.createElement('div', { className: 'space-y-4', key: 'meetups-list' }, [
+                      React.createElement('div', { className: 'p-3 bg-amber-50 rounded-lg border-l-4 border-red-800', key: 'meetup1' }, [
+                        React.createElement('h4', { className: 'font-semibold text-red-800', key: 'meetup1-title' }, 'Photography Walk'),
+                        React.createElement('p', { className: 'text-sm text-gray-600', key: 'meetup1-details' }, 'Tomorrow, 10:00 AM • 12 people interested')
+                      ]),
+                      React.createElement('div', { className: 'p-3 bg-amber-50 rounded-lg border-l-4 border-red-800', key: 'meetup2' }, [
+                        React.createElement('h4', { className: 'font-semibold text-red-800', key: 'meetup2-title' }, 'Food Tour'),
+                        React.createElement('p', { className:
