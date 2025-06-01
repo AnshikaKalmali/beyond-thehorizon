@@ -3,330 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beyond the Horizon - One Time Solution to All Weathers and Itineraries</title>
+    <title>Beyond the Horizon - Travel Planner</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: #333;
-        }
-        
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
-            background: rgba(255,255,255,0.95);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        
-        .login-container {
-            max-width: 400px;
-            margin: 10vh auto;
-            background: rgba(255,255,255,0.95);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            padding: 2rem;
-            text-align: center;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #00c6ff, #0072ff);
-            color: white;
-            padding: 2rem;
-            text-align: center;
-        }
-        
-        .content {
-            padding: 2rem;
-            max-height: 70vh;
-            overflow-y: auto;
-        }
-        
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        
-        input, textarea, select {
-            width: 100%;
-            padding: 1rem;
-            border: 2px solid #e1e8ed;
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background: #f8fafc;
-        }
-        
-        input:focus, textarea:focus, select:focus {
-            outline: none;
-            border-color: #0072ff;
-            background: white;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,114,255,0.15);
-        }
-        
-        .btn {
-            background: linear-gradient(135deg, #00c6ff, #0072ff);
-            color: white;
-            border: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-right: 8px;
-            margin-bottom: 8px;
-            display: inline-block;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0,114,255,0.3);
-        }
-        
-        .btn-small { padding: 0.5rem 1rem; font-size: 0.8rem; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; color: #333; }
+        .container { max-width: 500px; margin: 0 auto; background: rgba(255,255,255,0.95); border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden; }
+        .login-container { max-width: 400px; margin: 10vh auto; background: rgba(255,255,255,0.95); border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); padding: 2rem; text-align: center; }
+        .header { background: linear-gradient(135deg, #00c6ff, #0072ff); color: white; padding: 2rem; text-align: center; position: relative; }
+        .content { padding: 2rem; max-height: 70vh; overflow-y: auto; }
+        .form-group { margin-bottom: 1rem; }
+        input, textarea, select { width: 100%; padding: 1rem; border: 2px solid #e1e8ed; border-radius: 12px; font-size: 1rem; transition: all 0.3s ease; background: #f8fafc; }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: #0072ff; background: white; transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,114,255,0.15); }
+        .btn { background: linear-gradient(135deg, #00c6ff, #0072ff); color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 12px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; margin: 4px; display: inline-block; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,114,255,0.3); }
+        .btn-sm { padding: 0.5rem 1rem; font-size: 0.8rem; }
         .btn-success { background: linear-gradient(135deg, #10b981, #059669); }
-        .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
         .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); }
-        
-        .trip-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            border-left: 4px solid #0072ff;
-            position: relative;
-        }
-        
-        .trip-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: #0072ff;
-        }
-        
-        .trip-meta {
-            color: #64748b;
-            font-size: 0.85rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .feature-card {
-            background: linear-gradient(135deg, #a8edea, #fed6e3);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-        
-        .stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .stat-card {
-            background: linear-gradient(135deg, #ff9a9e, #fecfef);
-            color: white;
-            padding: 1.2rem;
-            border-radius: 12px;
-            text-align: center;
-        }
-        
+        .card { background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-left: 4px solid #0072ff; }
+        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-card { background: linear-gradient(135deg, #ff9a9e, #fecfef); color: white; padding: 1.2rem; border-radius: 12px; text-align: center; }
         .stat-number { font-size: 1.5rem; font-weight: 700; }
-        
         .hidden { display: none; }
-        
-        .tabs {
-            display: flex;
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            overflow-x: auto;
-        }
-        
-        .tab {
-            min-width: 80px;
-            background: transparent;
-            border: none;
-            padding: 0.8rem;
-            cursor: pointer;
-            font-size: 0.85rem;
-            color: #64748b;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-        
-        .tab.active {
-            color: #0072ff;
-            border-bottom: 3px solid #0072ff;
-        }
-        
-        .translator-box {
-            background: white;
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        
-        .budget-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.8rem;
-            border-bottom: 1px solid #e1e8ed;
-            background: #f8fafc;
-            margin-bottom: 0.5rem;
-            border-radius: 8px;
-        }
-        
-        .budget-item:last-child {
-            border-bottom: none;
-        }
-        
-        .budget-overview {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .budget-stat {
-            background: white;
-            padding: 1rem;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        
+        .tabs { display: flex; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow-x: auto; }
+        .tab { min-width: 80px; background: transparent; border: none; padding: 0.8rem; cursor: pointer; font-size: 0.85rem; color: #64748b; transition: all 0.3s ease; text-align: center; }
+        .tab.active { color: #0072ff; border-bottom: 3px solid #0072ff; }
+        .budget-overview { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+        .budget-stat { background: white; padding: 1rem; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .budget-stat.positive { border-left: 4px solid #10b981; }
         .budget-stat.negative { border-left: 4px solid #ef4444; }
         .budget-stat.neutral { border-left: 4px solid #0072ff; }
-        
-        .expense-category {
-            background: white;
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        
-        .category-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #0072ff;
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #e1e8ed;
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 0.5rem 0;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(135deg, #00c6ff, #0072ff);
-            transition: width 0.3s ease;
-        }
-        
-        .alert {
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-        }
-        
-        .alert-warning {
-            background: #fef3c7;
-            border-left: 4px solid #f59e0b;
-            color: #92400e;
-        }
-        
-        .alert-danger {
-            background: #fee2e2;
-            border-left: 4px solid #ef4444;
-            color: #991b1b;
-        }
-        
-        .alert-success {
-            background: #d1fae5;
-            border-left: 4px solid #10b981;
-            color: #065f46;
-        }
-        
-        .expense-form {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin-bottom: 1.5rem;
-        }
-        
-        .local-tip {
-            background: #f0f9ff;
-            border-left: 4px solid #0ea5e9;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: 8px;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 2rem 1rem;
-            color: #64748b;
-        }
-        
-        .user-info {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-        }
-        
-        .logout-btn {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: none;
-            padding: 0.3rem 0.8rem;
-            border-radius: 15px;
-            font-size: 0.7rem;
-            cursor: pointer;
-            margin-left: 0.5rem;
-        }
-        
-        .delete-btn {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 0.3rem 0.6rem;
-            border-radius: 6px;
-            font-size: 0.7rem;
-            cursor: pointer;
-        }
-        
-        @media (max-width: 480px) {
-            .stats { grid-template-columns: 1fr; }
-            .budget-overview { grid-template-columns: 1fr; }
-            .container, .login-container { margin: 10px; }
-            .tabs { font-size: 0.75rem; }
-        }
+        .expense-item { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem; background: #f8fafc; margin-bottom: 0.5rem; border-radius: 8px; }
+        .alert { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.9rem; }
+        .alert-warning { background: #fef3c7; border-left: 4px solid #f59e0b; color: #92400e; }
+        .alert-danger { background: #fee2e2; border-left: 4px solid #ef4444; color: #991b1b; }
+        .alert-success { background: #d1fae5; border-left: 4px solid #10b981; color: #065f46; }
+        .empty-state { text-align: center; padding: 2rem 1rem; color: #64748b; }
+        .user-info { position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.2); color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.8rem; }
+        .logout-btn { background: rgba(255,255,255,0.2); color: white; border: none; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.7rem; cursor: pointer; margin-left: 0.5rem; }
+        @media (max-width: 480px) { .stats, .budget-overview { grid-template-columns: 1fr; } .container, .login-container { margin: 10px; } }
     </style>
 </head>
 <body>
@@ -335,24 +49,17 @@
         <h1 style="color: #0072ff; margin-bottom: 0.5rem;">🌅 Beyond the Horizon</h1>
         <p style="color: #64748b; margin-bottom: 2rem;">One Time Solution to All Weathers and Itineraries</p>
         
-        <form id="login-form">
-            <div class="form-group">
-                <input type="email" id="email" placeholder="Email Address" required>
-            </div>
-            <div class="form-group">
-                <input type="password" id="password" placeholder="Password" required>
-            </div>
-            <button type="submit" class="btn" style="width: 100%;">Login</button>
-        </form>
+        <div class="form-group">
+            <input type="email" id="email" placeholder="Email Address">
+        </div>
+        <div class="form-group">
+            <input type="password" id="password" placeholder="Password">
+        </div>
+        <button class="btn" style="width: 100%;" onclick="login()">Login</button>
         
-        <p style="margin-top: 1rem; color: #64748b; font-size: 0.9rem;">
-            Don't have an account? <a href="#" onclick="showSignup()" style="color: #0072ff;">Sign up</a>
-        </p>
-        
-        <!-- Quick Login for Demo -->
         <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #e1e8ed;">
             <p style="color: #64748b; font-size: 0.8rem; margin-bottom: 1rem;">Demo Login:</p>
-            <button class="btn btn-small" onclick="quickLogin()">Quick Login as Demo User</button>
+            <button class="btn btn-sm" onclick="quickLogin()">Quick Login as Demo User</button>
         </div>
     </div>
 
@@ -373,7 +80,6 @@
             <button class="tab" onclick="showTab('add')">➕</button>
             <button class="tab" onclick="showTab('budget')">💰</button>
             <button class="tab" onclick="showTab('translate')">🌐</button>
-            <button class="tab" onclick="showTab('navigate')">🗺️</button>
             <button class="tab" onclick="showTab('local')">🏘️</button>
         </div>
         
@@ -390,10 +96,10 @@
                 </div>
             </div>
             
-            <div class="feature-card">
+            <div class="card" style="text-align: center; background: linear-gradient(135deg, #a8edea, #fed6e3);">
                 <h4>🤖 AI Assistant</h4>
                 <p>Smart rescheduling and personalized recommendations</p>
-                <button class="btn btn-small" onclick="aiReschedule()">Auto Reschedule</button>
+                <button class="btn btn-sm" onclick="aiReschedule()">Auto Reschedule</button>
             </div>
         </div>
         
@@ -410,30 +116,27 @@
         
         <!-- Add Trip -->
         <div id="add" class="content hidden">
-            <form id="trip-form">
-                <div class="form-group">
-                    <input type="text" id="destination" placeholder="Destination" required>
-                </div>
-                <div class="form-group">
-                    <input type="date" id="start-date" required>
-                    <input type="date" id="end-date" required style="margin-top: 0.5rem;">
-                </div>
-                <div class="form-group">
-                    <input type="number" id="budget" placeholder="Budget (₹)" min="0">
-                </div>
-                <button type="submit" class="btn">🚀 Create Trip</button>
-            </form>
+            <div class="form-group">
+                <input type="text" id="destination" placeholder="Destination" required>
+            </div>
+            <div class="form-group">
+                <input type="date" id="start-date" required>
+                <input type="date" id="end-date" required style="margin-top: 0.5rem;">
+            </div>
+            <div class="form-group">
+                <input type="number" id="budget" placeholder="Budget (₹)" min="0">
+            </div>
+            <button class="btn" onclick="createTrip()">🚀 Create Trip</button>
             
-            <h4>Popular Destinations</h4>
-            <button class="btn btn-small" onclick="quickAdd('Goa, India', 15000)">🏖️ Goa</button>
-            <button class="btn btn-small" onclick="quickAdd('Kerala, India', 20000)">🌴 Kerala</button>
-            <button class="btn btn-small" onclick="quickAdd('Rajasthan, India', 25000)">🏰 Rajasthan</button>
-            <button class="btn btn-small" onclick="quickAdd('Himachal Pradesh, India', 18000)">🏔️ Himachal</button>
+            <h4 style="margin-top: 1.5rem;">Popular Destinations</h4>
+            <button class="btn btn-sm" onclick="quickAdd('Goa, India', 15000)">🏖️ Goa</button>
+            <button class="btn btn-sm" onclick="quickAdd('Kerala, India', 20000)">🌴 Kerala</button>
+            <button class="btn btn-sm" onclick="quickAdd('Rajasthan, India', 25000)">🏰 Rajasthan</button>
+            <button class="btn btn-sm" onclick="quickAdd('Himachal Pradesh, India', 18000)">🏔️ Himachal</button>
         </div>
         
-        <!-- Enhanced Budget Management -->
+        <!-- Budget -->
         <div id="budget" class="content hidden">
-            <!-- Budget Overview -->
             <div class="budget-overview">
                 <div class="budget-stat neutral">
                     <div class="stat-number" id="total-budget-display">₹0</div>
@@ -449,11 +152,9 @@
                 </div>
             </div>
             
-            <!-- Budget Alerts -->
             <div id="budget-alerts"></div>
             
-            <!-- Add Expense Form -->
-            <div class="expense-form">
+            <div class="card">
                 <h4 style="margin-bottom: 1rem;">💰 Add New Expense</h4>
                 <div class="form-group">
                     <select id="expense-category">
@@ -466,7 +167,7 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <input type="text" id="expense-desc" placeholder="Description (e.g., Hotel booking, Lunch, etc.)">
+                    <input type="text" id="expense-desc" placeholder="Description">
                 </div>
                 <div class="form-group">
                     <input type="number" id="expense-amount" placeholder="Amount (₹)" min="0" step="0.01">
@@ -477,10 +178,6 @@
                 <button class="btn" onclick="addExpense()">Add Expense</button>
             </div>
             
-            <!-- Category-wise Expenses -->
-            <div id="category-expenses"></div>
-            
-            <!-- All Expenses List -->
             <div id="expenses-list">
                 <div class="empty-state" id="no-expenses">
                     <div style="font-size: 2rem;">💸</div>
@@ -492,7 +189,7 @@
         
         <!-- Translator -->
         <div id="translate" class="content hidden">
-            <div class="translator-box">
+            <div class="card">
                 <h4>🌐 Smart Translator</h4>
                 <select id="lang-select" style="margin-bottom: 1rem;">
                     <option value="hi">Hindi</option>
@@ -504,55 +201,31 @@
                     <option value="zh">Chinese</option>
                 </select>
                 <textarea id="text-input" placeholder="Enter text to translate..." rows="3"></textarea>
-                <button class="btn btn-small" onclick="translateText()">Translate</button>
+                <button class="btn btn-sm" onclick="translateText()">Translate</button>
                 <div id="translation-result" style="margin-top: 1rem; padding: 1rem; background: #f0f9ff; border-radius: 8px; display: none;"></div>
             </div>
             
             <h4>Quick Phrases</h4>
-            <button class="btn btn-small" onclick="quickTranslate('Hello')">Hello</button>
-            <button class="btn btn-small" onclick="quickTranslate('Thank you')">Thank you</button>
-            <button class="btn btn-small" onclick="quickTranslate('Where is the bathroom?')">Bathroom?</button>
+            <button class="btn btn-sm" onclick="quickTranslate('Hello')">Hello</button>
+            <button class="btn btn-sm" onclick="quickTranslate('Thank you')">Thank you</button>
+            <button class="btn btn-sm" onclick="quickTranslate('Where is the bathroom?')">Bathroom?</button>
         </div>
         
-        <!-- Navigation -->
-        <div id="navigate" class="content hidden">
-            <div class="feature-card">
-                <h4>🗺️ Smart Navigation</h4>
-                <p>AI-powered route optimization</p>
-            </div>
-            
-            <div class="form-group">
-                <input type="text" id="nav-destination" placeholder="Where do you want to go?">
-                <button class="btn" onclick="getDirections()">Get Directions</button>
-            </div>
-            
-            <div id="directions-result"></div>
-            
-            <h4>Nearby Places</h4>
-            <button class="btn btn-small" onclick="findNearby('restaurants')">🍽️ Food</button>
-            <button class="btn btn-small" onclick="findNearby('hotels')">🏨 Hotels</button>
-            <button class="btn btn-small" onclick="findNearby('attractions')">🎯 Attractions</button>
-            
-            <div id="nearby-results"></div>
-        </div>
-        
-        <!-- Local Interactions -->
+        <!-- Local Insights -->
         <div id="local" class="content hidden">
-            <div class="feature-card">
+            <div class="card" style="text-align: center; background: linear-gradient(135deg, #a8edea, #fed6e3);">
                 <h4>🏘️ Local Insights</h4>
                 <p>Connect with locals and get insider tips</p>
             </div>
             
-            <div id="local-tips">
-                <div class="local-tip">
-                    <strong>💡 Pro Tip:</strong> Download offline maps before you travel to avoid roaming charges.
-                </div>
-                <div class="local-tip">
-                    <strong>🍕 Local Food:</strong> Try street food - it's usually the most authentic and affordable option.
-                </div>
-                <div class="local-tip">
-                    <strong>🚗 Transport:</strong> Use local transport apps for better rates than tourist taxis.
-                </div>
+            <div style="background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+                <strong>💡 Pro Tip:</strong> Download offline maps before you travel to avoid roaming charges.
+            </div>
+            <div style="background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+                <strong>🍕 Local Food:</strong> Try street food - it's usually the most authentic and affordable option.
+            </div>
+            <div style="background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+                <strong>🚗 Transport:</strong> Use local transport apps for better rates than tourist taxis.
             </div>
             
             <button class="btn" onclick="getLocalTips()">Get More Tips</button>
@@ -571,24 +244,28 @@
         };
         
         const categoryIcons = {
-            accommodation: '🏨',
-            food: '🍽️',
-            transport: '🚗',
-            activities: '🎯',
-            shopping: '🛍️',
-            miscellaneous: '📝'
+            accommodation: '🏨', food: '🍽️', transport: '🚗',
+            activities: '🎯', shopping: '🛍️', miscellaneous: '📝'
         };
         
-        // Set today's date as default for expense date
+        // Set today's date for expense date
         document.getElementById('expense-date').value = new Date().toISOString().split('T')[0];
         
-        // Login Functions
-        function showSignup() {
-            alert('Signup feature would redirect to registration page');
+        function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            if (email && password) {
+                currentUser = { name: email.split('@')[0], email: email };
+                showMainApp();
+            }
         }
         
         function quickLogin() {
             currentUser = { name: 'Demo User', email: 'demo@example.com' };
+            showMainApp();
+        }
+        
+        function showMainApp() {
             document.getElementById('user-name').textContent = currentUser.name;
             document.getElementById('login-page').classList.add('hidden');
             document.getElementById('main-app').classList.remove('hidden');
@@ -601,22 +278,9 @@
             expenses = [];
             document.getElementById('login-page').classList.remove('hidden');
             document.getElementById('main-app').classList.add('hidden');
-            document.getElementById('login-form').reset();
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
         }
-        
-        document.getElementById('login-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            if (email && password) {
-                currentUser = { name: email.split('@')[0], email: email };
-                document.getElementById('user-name').textContent = currentUser.name;
-                document.getElementById('login-page').classList.add('hidden');
-                document.getElementById('main-app').classList.remove('hidden');
-                updateDashboard();
-            }
-        });
         
         function showTab(tabName) {
             document.querySelectorAll('.content').forEach(tab => tab.classList.add('hidden'));
@@ -628,6 +292,21 @@
             if (tabName === 'trips') renderTrips();
             if (tabName === 'dashboard') updateDashboard();
             if (tabName === 'budget') updateBudget();
+        }
+        
+        function createTrip() {
+            const destination = document.getElementById('destination').value;
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+            const budget = document.getElementById('budget').value;
+            
+            if (destination && startDate && endDate) {
+                addTrip(destination, startDate, endDate, budget);
+                document.getElementById('destination').value = '';
+                document.getElementById('start-date').value = '';
+                document.getElementById('end-date').value = '';
+                document.getElementById('budget').value = '';
+            }
         }
         
         function addTrip(destination, startDate, endDate, budget) {
@@ -642,6 +321,14 @@
             trips.push(trip);
             updateDashboard();
             alert('🎉 Trip created successfully!');
+        }
+        
+        function quickAdd(destination, budget) {
+            const today = new Date();
+            const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+            const twoWeeks = new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000);
+            
+            addTrip(destination, nextWeek.toISOString().split('T')[0], twoWeeks.toISOString().split('T')[0], budget);
         }
         
         function deleteTrip(id) {
@@ -664,12 +351,14 @@
             }
             
             container.innerHTML = trips.map(trip => `
-                <div class="trip-card">
-                    <div class="trip-title">🌍 ${trip.destination}</div>
-                    <div class="trip-meta">${formatDate(trip.startDate)} - ${formatDate(trip.endDate)}</div>
-                    <div class="trip-meta">Budget: ₹${trip.budget.toLocaleString('en-IN')}</div>
-                    <button class="btn btn-small btn-warning" onclick="rescheduleTrip(${trip.id})">Reschedule</button>
-                    <button class="btn btn-small btn-danger" onclick="deleteTrip(${trip.id})">Delete</button>
+                <div class="card">
+                    <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: #0072ff;">🌍 ${trip.destination}</div>
+                    <div style="color: #64748b; font-size: 0.85rem; margin-bottom: 0.5rem;">${formatDate(trip.startDate)} - ${formatDate(trip.endDate)}</div>
+                    <div style="color: #64748b; font-size: 0.85rem;">Budget: ₹${trip.budget.toLocaleString('en-IN')}</div>
+                    <div style="margin-top: 1rem;">
+                        <button class="btn btn-sm btn-success" onclick="rescheduleTrip(${trip.id})">Reschedule</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteTrip(${trip.id})">Delete</button>
+                    </div>
                 </div>
             `).join('');
         }
@@ -680,27 +369,44 @@
             document.getElementById('total-budget').textContent = `₹${totalBudget.toLocaleString('en-IN')}`;
         }
         
+        function addExpense() {
+            const category = document.getElementById('expense-category').value;
+            const desc = document.getElementById('expense-desc').value;
+            const amount = parseFloat(document.getElementById('expense-amount').value);
+            const date = document.getElementById('expense-date').value;
+            
+            if (amount && desc && date) {
+                const expense = {
+                    id: Date.now(),
+                    category,
+                    description: desc,
+                    amount,
+                    date
+                };
+                expenses.push(expense);
+                
+                // Clear form
+                document.getElementById('expense-desc').value = '';
+                document.getElementById('expense-amount').value = '';
+                
+                updateBudget();
+                alert('💰 Expense added successfully!');
+            }
+        }
+        
         function updateBudget() {
             const totalBudget = trips.reduce((sum, trip) => sum + trip.budget, 0);
             const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
             const remaining = totalBudget - totalExpenses;
             
-            // Update budget overview
             document.getElementById('total-budget-display').textContent = `₹${totalBudget.toLocaleString('en-IN')}`;
             document.getElementById('total-spent').textContent = `₹${totalExpenses.toLocaleString('en-IN')}`;
             document.getElementById('remaining-budget').textContent = `₹${remaining.toLocaleString('en-IN')}`;
             
-            // Update remaining stat color
             const remainingStat = document.getElementById('remaining-stat');
             remainingStat.className = 'budget-stat ' + (remaining > 0 ? 'positive' : remaining < 0 ? 'negative' : 'neutral');
             
-            // Show budget alerts
             updateBudgetAlerts(totalBudget, totalExpenses, remaining);
-            
-            // Update category expenses
-            updateCategoryExpenses();
-            
-            // Update expenses list
             updateExpensesList();
         }
         
@@ -716,7 +422,7 @@
                 if (remaining < 0) {
                     alerts += `<div class="alert alert-danger">🚨 You've exceeded your budget by ₹${Math.abs(remaining).toLocaleString('en-IN')}!</div>`;
                 } else if (spentPercentage > 80) {
-                    alerts += `<div class="alert alert-warning">⚠️ You've used ${spentPercentage.toFixed(0)}% of your budget. Be careful with remaining expenses.</div>`;
+                    alerts += `<div class="alert alert-warning">⚠️ You've used ${spentPercentage.toFixed(0)}% of your budget. Be careful!</div>`;
                 } else if (spentPercentage > 50) {
                     alerts += `<div class="alert alert-success">✅ You're at ${spentPercentage.toFixed(0)}% of your budget. Good progress!</div>`;
                 }
@@ -725,6 +431,95 @@
             alertsContainer.innerHTML = alerts;
         }
         
-        function updateCategoryExpenses() {
-            const categoryTotals = {};
-            const totalBudget = trips.reduce((sum, trip) => sum + trip.budget, 0);
+        function updateExpensesList() {
+            const container = document.getElementById('expenses-list');
+            const noExpenses = document.getElementById('no-expenses');
+            
+            if (expenses.length === 0) {
+                noExpenses.style.display = 'block';
+                return;
+            }
+            
+            noExpenses.style.display = 'none';
+            
+            const expensesByCategory = expenses.reduce((acc, exp) => {
+                if (!acc[exp.category]) acc[exp.category] = [];
+                acc[exp.category].push(exp);
+                return acc;
+            }, {});
+            
+            let html = '';
+            Object.keys(expensesByCategory).forEach(category => {
+                const categoryExpenses = expensesByCategory[category];
+                const categoryTotal = categoryExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+                
+                html += `
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-weight: 600; color: #0072ff;">
+                            <span>${categoryIcons[category]} ${category.charAt(0).toUpperCase() + category.slice(1)}</span>
+                            <span>₹${categoryTotal.toLocaleString('en-IN')}</span>
+                        </div>
+                        ${categoryExpenses.map(exp => `
+                            <div class="expense-item">
+                                <div>
+                                    <div style="font-weight: 500;">${exp.description}</div>
+                                    <div style="font-size: 0.8rem; color: #64748b;">${formatDate(exp.date)}</div>
+                                </div>
+                                <div style="font-weight: 600;">₹${exp.amount.toLocaleString('en-IN')}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html + container.querySelector('.empty-state').outerHTML;
+        }
+        
+        function translateText() {
+            const text = document.getElementById('text-input').value;
+            const lang = document.getElementById('lang-select').value;
+            
+            if (text && translations[text] && translations[text][lang]) {
+                showTranslation(text, translations[text][lang]);
+            } else {
+                showTranslation(text, `Translation to ${lang} would appear here`);
+            }
+        }
+        
+        function quickTranslate(text) {
+            const lang = document.getElementById('lang-select').value;
+            document.getElementById('text-input').value = text;
+            
+            if (translations[text] && translations[text][lang]) {
+                showTranslation(text, translations[text][lang]);
+            }
+        }
+        
+        function showTranslation(original, translated) {
+            const result = document.getElementById('translation-result');
+            result.innerHTML = `<strong>Original:</strong> ${original}<br><strong>Translation:</strong> ${translated}`;
+            result.style.display = 'block';
+        }
+        
+        function formatDate(dateStr) {
+            return new Date(dateStr).toLocaleDateString('en-IN', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+        
+        function rescheduleTrip(id) {
+            alert('🤖 AI would analyze weather and local events to suggest optimal rescheduling options.');
+        }
+        
+        function aiReschedule() {
+            alert('🤖 AI Assistant: Analyzing your trips for weather patterns and local events to optimize your schedule.');
+        }
+        
+        function getLocalTips() {
+            alert('🏘️ Local experts would provide personalized tips based on your destination and travel dates.');
+        }
+    </script>
+</body>
+</html>
