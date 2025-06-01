@@ -2,665 +2,116 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Travel Companion</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.js"></script>
+    <title>Travel App Demo</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 1rem;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 1rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            overflow: hidden;
-        }
-        
-        .auth-container {
-            max-width: 400px;
-            margin: 2rem auto;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 1rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            overflow: hidden;
-        }
-        
-        .auth-header {
-            padding: 2rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            text-align: center;
-        }
-        
-        .auth-header h1 {
-            font-size: 1.75rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-        
-        .auth-content {
-            padding: 2rem;
-        }
-        
-        .header {
-            padding: 2rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            position: relative;
-        }
-        
-        .header-title {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .header-title h1 {
-            font-size: 2rem;
-            font-weight: 700;
-        }
-        
-        .header-subtitle {
-            opacity: 0.9;
-            font-size: 1.1rem;
-        }
-        
-        .user-info {
-            position: absolute;
-            top: 1rem;
-            right: 2rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        
-        .user-greeting {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-        
-        .logout-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            font-size: 0.875rem;
-            transition: background 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .logout-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        
-        .tabs {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1.5rem;
-            overflow-x: auto;
-        }
-        
-        .tab-button {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.25rem;
-            border-radius: 0.75rem;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-            font-weight: 500;
-        }
-        
-        .tab-button.active {
-            background: rgba(255, 255, 255, 0.25);
-            color: white;
-        }
-        
-        .tab-button:not(.active) {
-            background: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.8);
-        }
-        
-        .tab-button:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-        }
-        
-        .content {
-            padding: 2rem;
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .form-section {
-            background: white;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 1rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        
-        .form-section-header {
-            padding: 1.25rem;
-            background: #f8fafc;
-            font-weight: 600;
-            font-size: 1.1rem;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        
-        .form-section-content {
-            padding: 1.5rem;
-        }
-        
-        .form-grid {
-            display: grid;
-            gap: 1.25rem;
-        }
-        
-        .form-grid.md-2 {
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        }
-        
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        
-        .form-label {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #374151;
-        }
-        
-        .form-input, .form-select, .form-textarea {
-            padding: 0.75rem 1rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 0.5rem;
-            font-size: 0.9rem;
-            transition: border-color 0.3s ease;
-        }
-        
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        .form-textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-        
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            width: 100%;
-            margin-bottom: 1rem;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-        }
-        
-        .btn-secondary {
-            background: #f8fafc;
-            color: #374151;
-            border: 2px solid #e5e7eb;
-        }
-        
-        .btn-secondary:hover {
-            background: #f1f5f9;
-            border-color: #d1d5db;
-        }
-        
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-            width: auto;
-            margin: 0;
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-        }
-        
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-        
-        .auth-toggle {
-            text-align: center;
-            margin-top: 1rem;
-            color: #6b7280;
-            font-size: 0.875rem;
-        }
-        
-        .auth-toggle a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        
-        .auth-toggle a:hover {
-            text-decoration: underline;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .stat-card {
-            padding: 1.5rem;
-            border-radius: 1rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        
-        .stat-card.blue { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); }
-        .stat-card.red { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); }
-        .stat-card.green { background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); }
-        
-        .stat-title {
-            font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 0.5rem;
-        }
-        
-        .stat-value {
-            font-size: 1.75rem;
-            font-weight: 700;
-        }
-        
-        .item-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        
-        .item-card {
-            border: 1px solid #e5e7eb;
-            border-radius: 0.75rem;
-            padding: 1.25rem;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-        
-        .item-card:hover {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            transform: translateY(-2px);
-        }
-        
-        .item-title {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-            font-size: 1.1rem;
-        }
-        
-        .item-subtitle {
-            font-size: 0.875rem;
-            color: #6b7280;
-        }
-        
-        .item-actions {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-        }
-        
-        .map-placeholder {
-            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-            height: 20rem;
-            border-radius: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #6b7280;
-            font-size: 1.1rem;
-            font-weight: 500;
-        }
-        
-        .hidden {
-            display: none !important;
-        }
-        
-        .personal-welcome {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            padding: 1.5rem;
-            border-radius: 1rem;
-            margin-bottom: 2rem;
-            border-left: 4px solid #f59e0b;
-        }
-        
-        .personal-welcome h3 {
-            color: #92400e;
-            font-size: 1.2rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .personal-welcome p {
-            color: #b45309;
-            font-size: 0.9rem;
-        }
-        
-        .alert {
-            padding: 1rem;
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .alert-success {
-            background: #f0fdf4;
-            color: #166534;
-            border: 1px solid #bbf7d0;
-        }
-        
-        .alert-error {
-            background: #fef2f2;
-            color: #dc2626;
-            border: 1px solid #fecaca;
-        }
-        
-        @media (max-width: 768px) {
-            .form-grid.md-2 {
-                grid-template-columns: 1fr;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .user-info {
-                position: static;
-                justify-content: center;
-                margin-top: 1rem;
-            }
-        }
+        body { font-family: Arial, sans-serif; background: #f6f9fb; margin: 0; padding: 0; }
+        .container { max-width: 400px; margin: 60px auto; background: #fff; padding: 2em; border-radius: 10px; box-shadow: 0 2px 8px #0001; }
+        h2 { margin-top: 0; }
+        .hidden { display: none; }
+        .toggle-link { color: #007bff; cursor: pointer; text-decoration: underline; }
+        .btn { background: #007bff; color: #fff; border: none; padding: 0.7em 1.5em; border-radius: 5px; cursor: pointer; }
+        .tabs { display: flex; gap: 1em; margin-bottom: 1em; }
+        .tab-btn { background: #eee; border: none; padding: 0.5em 1em; border-radius: 5px; cursor: pointer; }
+        .tab-btn.active { background: #007bff; color: #fff; }
+        .logout { float: right; cursor: pointer; color: #e74c3c; font-size: 0.9em; }
     </style>
 </head>
 <body>
-    <!-- Authentication Screen -->
-    <div id="auth-screen" class="auth-container">
-        <div class="auth-header">
-            <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 1rem;">
-                <i data-lucide="globe" style="width: 2rem; height: 2rem;"></i>
-                <h1>Smart Travel Companion</h1>
-            </div>
-            <p style="opacity: 0.9;">Sign in to access your personalized travel dashboard</p>
+    <!-- Auth Screen -->
+    <div class="container" id="auth-screen">
+        <!-- Sign In Form -->
+        <form id="signin-form">
+            <h2>Sign In</h2>
+            <input type="email" placeholder="Email" required style="width:100%;padding:0.5em;margin-bottom:1em;"><br>
+            <input type="password" placeholder="Password" required style="width:100%;padding:0.5em;margin-bottom:1em;"><br>
+            <button type="submit" class="btn">Sign In</button>
+            <p style="margin-top:1em;">Don't have an account?
+                <span class="toggle-link" onclick="toggleAuthMode()">Sign Up</span>
+            </p>
+        </form>
+        <!-- Sign Up Form (hidden by default) -->
+        <form id="signup-form" class="hidden">
+            <h2>Sign Up</h2>
+            <input type="text" name="name" placeholder="Name" required style="width:100%;padding:0.5em;margin-bottom:1em;"><br>
+            <input type="email" placeholder="Email" required style="width:100%;padding:0.5em;margin-bottom:1em;"><br>
+            <input type="password" placeholder="Password" required style="width:100%;padding:0.5em;margin-bottom:1em;"><br>
+            <button type="submit" class="btn">Create Account</button>
+            <p style="margin-top:1em;">Already have an account?
+                <span class="toggle-link" onclick="toggleAuthMode()">Sign In</span>
+            </p>
+        </form>
+    </div>
+
+    <!-- Main App (hidden by default) -->
+    <div class="container hidden" id="main-app">
+        <span class="logout" onclick="logout()">Log out</span>
+        <h2>Welcome, <span id="user-name">Traveler</span>!</h2>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('dashboard')">Dashboard</button>
+            <button class="tab-btn" onclick="showTab('itinerary')">Itinerary</button>
+            <button class="tab-btn" onclick="showTab('navigation')">Navigation</button>
         </div>
-        
-        <div class="auth-content">
-            <!-- Sign In Form -->
-            <div id="signin-form">
-                <form id="signin">
-                    <div class="form-group">
-                        <label class="form-label">Email</label>
-                        <input type="email" class="form-input" name="email" required placeholder="your@email.com">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Password</label>
-                        <input type="password" class="form-input" name="password" required placeholder="••••••••">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Sign In</button>
-                </form>
-                <div class="auth-toggle">
-                    Don't have an account? <a href="#" onclick="toggleAuthMode()">Sign Up</a>
-                </div>
-            </div>
-            
-            <!-- Sign Up Form -->
-            <div id="signup-form" class="hidden">
-                <form id="signup">
-                    <div class="form-group">
-                        <label class="form-label">Full Name</label>
-                        <input type="text" class="form-input" name="name" required placeholder="John Doe">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Email</label>
-                        <input type="email" class="form-input" name="email" required placeholder="your@email.com">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Password</label>
-                        <input type="password" class="form-input" name="password" required placeholder="••••••••">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Preferred Travel Style</label>
-                        <select class="form-select" name="travelStyle">
-                            <option value="adventure">Adventure</option>
-                            <option value="relaxation">Relaxation</option>
-                            <option value="cultural">Cultural</option>
-                            <option value="business">Business</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Create Account</button>
-                </form>
-                <div class="auth-toggle">
-                    Already have an account? <a href="#" onclick="toggleAuthMode()">Sign In</a>
-                </div>
-            </div>
+        <div id="dashboard-tab">
+            <p>This is your dashboard. Plan your trip here!</p>
+        </div>
+        <div id="itinerary-tab" class="hidden">
+            <p>Your itinerary will appear here.</p>
+        </div>
+        <div id="navigation-tab" class="hidden">
+            <p>Navigation tools coming soon.</p>
         </div>
     </div>
 
-    <!-- Main App Container -->
-    <div id="main-app" class="container hidden">
-        <div class="header">
-            <div class="user-info">
-                <div class="user-greeting">Welcome back, <span id="user-name">Traveler</span>!</div>
-                <button class="logout-btn" onclick="logout()">
-                    <i data-lucide="log-out" style="width: 1rem; height: 1rem;"></i>
-                    Logout
-                </button>
-            </div>
-            
-            <div class="header-title">
-                <i data-lucide="globe" style="width: 2rem; height: 2rem;"></i>
-                <h1>Smart Travel Companion</h1>
-            </div>
-            <p class="header-subtitle">Your personalized intelligent travel assistant</p>
-            
-            <div class="tabs">
-                <button class="tab-button active" data-tab="dashboard">
-                    <i data-lucide="home"></i>
-                    Dashboard
-                </button>
-                <button class="tab-button" data-tab="itinerary">
-                    <i data-lucide="map-pin"></i>
-                    Itinerary
-                </button>
-                <button class="tab-button" data-tab="navigation">
-                    <i data-lucide="map"></i>
-                    Navigation
-                </button>
-                <button class="tab-button" data-tab="budget">
-                    <i data-lucide="dollar-sign"></i>
-                    Smart Budget
-                </button>
-                <button class="tab-button" data-tab="connections">
-                    <i data-lucide="users"></i>
-                    Local Connections
-                </button>
-                <button class="tab-button" data-tab="language">
-                    <i data-lucide="languages"></i>
-                    Language Helper
-                </button>
-                <button class="tab-button" data-tab="profile">
-                    <i data-lucide="user"></i>
-                    Profile
-                </button>
-            </div>
-        </div>
+    <script>
+    // Toggle between Sign In and Sign Up forms
+    function toggleAuthMode() {
+        document.getElementById('signin-form').classList.toggle('hidden');
+        document.getElementById('signup-form').classList.toggle('hidden');
+    }
 
-        <div class="content">
-            <!-- Dashboard Tab -->
-            <div id="dashboard" class="tab-content active">
-                <div id="personal-welcome" class="personal-welcome">
-                    <h3>Welcome back, <span id="dashboard-user-name">Traveler</span>!</h3>
-                    <p>Here's a quick overview of your travel activities and personalized recommendations.</p>
-                </div>
-                
-                <div class="stats-grid">
-                    <div class="stat-card blue">
-                        <div class="stat-title">Total Trips</div>
-                        <div class="stat-value" id="total-trips">0</div>
-                    </div>
-                    <div class="stat-card green">
-                        <div class="stat-title">Countries Visited</div>
-                        <div class="stat-value" id="countries-visited">0</div>
-                    </div>
-                    <div class="stat-card red">
-                        <div class="stat-title">Total Spent</div>
-                        <div class="stat-value" id="total-spent">₹0</div>
-                    </div>
-                </div>
+    // Handle Sign In
+    document.getElementById('signin-form').onsubmit = function(e) {
+        e.preventDefault();
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('main-app').classList.remove('hidden');
+        document.getElementById('user-name').textContent = "Traveler";
+    };
 
-                <div class="form-section">
-                    <div class="form-section-header">Recent Activity</div>
-                    <div class="form-section-content">
-                        <div id="recent-activity" class="item-list">
-                            <p style="color: #6b7280;">Start planning your first trip to see activity here!</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    // Handle Sign Up
+    document.getElementById('signup-form').onsubmit = function(e) {
+        e.preventDefault();
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('main-app').classList.remove('hidden');
+        var name = this.elements['name'].value;
+        document.getElementById('user-name').textContent = name || "Traveler";
+    };
 
-            <!-- Itinerary Tab -->
-            <div id="itinerary" class="tab-content">
-                <div class="form-section">
-                    <div class="form-section-header">Add New Itinerary</div>
-                    <div class="form-section-content">
-                        <form id="itinerary-form">
-                            <div class="form-grid md-2">
-                                <div class="form-group">
-                                    <label class="form-label">Destination</label>
-                                    <input type="text" class="form-input" name="destination" placeholder="e.g., Paris, France" required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Travel Mode</label>
-                                    <select class="form-select" name="travelMode">
-                                        <option value="train">Train</option>
-                                        <option value="bus">Bus</option>
-                                        <option value="flight">Flight</option>
-                                        <option value="self-drive">Self Drive</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Start Date</label>
-                                    <input type="date" class="form-input" name="startDate" required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">End Date</label>
-                                    <input type="date" class="form-input" name="endDate" required>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Activities</label>
-                                <textarea class="form-textarea" name="activities" placeholder="Describe your planned activities..."></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Add Itinerary</button>
-                        </form>
-                    </div>
-                </div>
+    // Logout function
+    function logout() {
+        document.getElementById('main-app').classList.add('hidden');
+        document.getElementById('auth-screen').classList.remove('hidden');
+        document.getElementById('signin-form').classList.remove('hidden');
+        document.getElementById('signup-form').classList.add('hidden');
+    }
 
-                <div class="form-section">
-                    <div class="form-section-header">Your Itineraries</div>
-                    <div class="form-section-content">
-                        <div id="itinerary-list" class="item-list">
-                            <p style="color: #6b7280;">No itineraries added yet. Add your first travel plan above!</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Navigation Tab -->
-            <div id="navigation" class="tab-content">
-                <div class="form-section">
-                    <div class="form-section-header">Navigation & Maps</div>
-                    <div class="form-section-content">
-                        <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
-                            <input type="text" class="form-input" placeholder="Enter destination..." style="flex: 1;" id="destination-input">
-                            <button class="btn btn-primary" onclick="getCurrentLocation()" style="width: auto;">Get Current Location</button>
-                        </div>
-                        <div id="location-display" class="hidden" style="padding: 1rem; background: #f0fdf4; border-radius: 0.5rem; margin-bottom: 1rem; color: #166534;">
-                            Current Location: <span id="coordinates"></span>
-                        </div>
-                        <div class="map-placeholder">
-                            <div style="text-align: center;">
-                                <i data-lucide="map" style="width: 3rem; height: 3rem; margin-bottom: 1rem;"></i>
-                                <p>Interactive Map Integration Available</p>
-                                <p style="font-size: 0.875rem; opacity: 0.7; margin-top: 0.5rem;">GPS navigation and real-time directions</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Budget Tab -->
-            <div id="budget" class="tab-content">
-                <div class="form-section">
-                    <div class="form-section-header">Budget Overview</div>
-                    <div class="form-section-content">
-                        <div class="stats-grid">
-                            <div class="stat-card blue">
-                                <div class="stat-title">Total Budget</div>
-                                <div class="stat-value" id="total-budget">₹50,000</div>
-                            </div>
-                            <div class="stat-card red">
-                                <div class="stat-title">Total Expenses</div>
-                                <div class="stat-value" id="total-expenses">₹0</div>
-                            </div>
-                            <div class="stat-card green">
-                                <div class="stat-title">Remaining Budget</div>
-                                <div class="stat-value" id="remaining-budget">₹50,000</div>
-                            </div>
-                        </div>
-
-                        <div class="form-grid md-2">
-                            <div class="form-section">
-                                <div class="form-section-header">Add New Expense</div>
-                                <div class="form-section-content">
-                                    <form id="expense-form">
-                                        <div class="form-group">
-                                            <label class="form-label">Amount (₹)</label>
-                                            <input type="number" class="form-input" name="amount" placeholder="1000" required min="0">
-                                        </div>
-                                        <div class="form-grid md-2">
-                                            <div class="form-group">
-                                                <label class="form-label">Category</label>
-                                                <select class="form-select" name="category">
-                                                    <option va
+    // Tab switching logic
+    function showTab(tab) {
+        // Hide all tabs
+        document.getElementById('dashboard-tab').classList.add('hidden');
+        document.getElementById('itinerary-tab').classList.add('hidden');
+        document.getElementById('navigation-tab').classList.add('hidden');
+        // Remove active from all buttons
+        var btns = document.getElementsByClassName('tab-btn');
+        for (var i = 0; i < btns.length; i++) {
+            btns[i].classList.remove('active');
+        }
+        // Show selected tab
+        document.getElementById(tab + '-tab').classList.remove('hidden');
+        // Set active button
+        if (tab === 'dashboard') btns[0].classList.add('active');
+        if (tab === 'itinerary') btns[1].classList.add('active');
+        if (tab === 'navigation') btns[2].classList.add('active');
+    }
+    </script>
+</body>
+</html>
