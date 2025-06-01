@@ -56,7 +56,7 @@
             position: relative;
         }
 
-        .form-group input {
+        .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             padding: 1rem;
             border: 2px solid #e1e8ed;
@@ -64,9 +64,15 @@
             font-size: 1rem;
             transition: all 0.3s ease;
             background: #f8fafc;
+            font-family: inherit;
         }
 
-        .form-group input:focus {
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             outline: none;
             border-color: #667eea;
             background: white;
@@ -95,6 +101,13 @@
 
         .btn:active {
             transform: translateY(0);
+        }
+
+        .btn-small {
+            width: auto;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            margin-bottom: 0;
         }
 
         .toggle-text {
@@ -196,6 +209,8 @@
         .tab-content {
             padding: 2rem;
             min-height: 300px;
+            max-height: 400px;
+            overflow-y: auto;
         }
 
         .dashboard-grid {
@@ -263,6 +278,7 @@
             margin-bottom: 1rem;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             border-left: 4px solid #00c6ff;
+            position: relative;
         }
 
         .itinerary-date {
@@ -281,6 +297,26 @@
         .itinerary-description {
             color: #64748b;
             font-size: 0.9rem;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background: #ff3742;
+            transform: scale(1.1);
         }
 
         .add-btn {
@@ -304,17 +340,97 @@
             transform: scale(1.1);
         }
 
-        .navigation-feature {
-            background: linear-gradient(135deg, #a8edea, #fed6e3);
-            border-radius: 15px;
-            padding: 2rem;
-            text-align: center;
-            margin-bottom: 1rem;
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
         }
 
-        .feature-icon {
-            font-size: 3rem;
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .weather-card {
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            border-radius: 15px;
+            padding: 1.5rem;
             margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .weather-temp {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .destination-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .destination-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .destination-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .destination-description {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .search-box {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 1rem 0;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #e1e8ed;
         }
 
         @media (max-width: 480px) {
@@ -340,6 +456,24 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
         }
     </style>
 </head>
@@ -400,24 +534,24 @@
         <div class="tabs">
             <button class="tab-btn active" onclick="showTab('dashboard')">🏠 Dashboard</button>
             <button class="tab-btn" onclick="showTab('itinerary')">📋 Itinerary</button>
-            <button class="tab-btn" onclick="showTab('navigation')">🗺️ Navigate</button>
+            <button class="tab-btn" onclick="showTab('navigation')">🗺️ Explore</button>
         </div>
         
         <!-- Dashboard Tab -->
         <div id="dashboard-tab" class="tab-content">
             <div class="dashboard-grid">
                 <div class="stat-card">
-                    <div class="stat-number">3</div>
+                    <div class="stat-number" id="trips-count">0</div>
                     <div class="stat-label">Trips Planned</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">12</div>
-                    <div class="stat-label">Places Visited</div>
+                    <div class="stat-number" id="places-count">0</div>
+                    <div class="stat-label">Places to Visit</div>
                 </div>
             </div>
             
             <h3 style="margin-bottom: 1rem; color: #1e293b;">Quick Actions</h3>
-            <div class="quick-action" onclick="alert('Plan new trip feature coming soon!')">
+            <div class="quick-action" onclick="openNewTripModal()">
                 <div class="quick-action-icon">✈️</div>
                 <div>
                     <div style="font-weight: 600;">Plan New Trip</div>
@@ -425,7 +559,7 @@
                 </div>
             </div>
             
-            <div class="quick-action" onclick="alert('Find destinations feature coming soon!')">
+            <div class="quick-action" onclick="showTab('navigation'); generateDestinations()">
                 <div class="quick-action-icon">🌍</div>
                 <div>
                     <div style="font-weight: 600;">Discover Destinations</div>
@@ -433,11 +567,11 @@
                 </div>
             </div>
             
-            <div class="quick-action" onclick="alert('View travel history feature coming soon!')">
-                <div class="quick-action-icon">📸</div>
+            <div class="quick-action" onclick="showWeather()">
+                <div class="quick-action-icon">🌤️</div>
                 <div>
-                    <div style="font-weight: 600;">Travel Memories</div>
-                    <div style="color: #64748b; font-size: 0.9rem;">Browse your past adventures</div>
+                    <div style="font-weight: 600;">Check Weather</div>
+                    <div style="color: #64748b; font-size: 0.9rem;">Get weather updates for your trips</div>
                 </div>
             </div>
         </div>
@@ -445,54 +579,91 @@
         <!-- Itinerary Tab -->
         <div id="itinerary-tab" class="tab-content hidden">
             <h3 style="margin-bottom: 1.5rem; color: #1e293b;">Your Upcoming Adventures</h3>
-            
-            <div class="itinerary-item">
-                <div class="itinerary-date">March 15-22, 2025</div>
-                <div class="itinerary-title">🗼 Paris, France</div>
-                <div class="itinerary-description">Explore the City of Light - Eiffel Tower, Louvre Museum, and charming cafés</div>
+            <div id="itinerary-list">
+                <!-- Itineraries will be populated here -->
             </div>
-            
-            <div class="itinerary-item">
-                <div class="itinerary-date">April 5-12, 2025</div>
-                <div class="itinerary-title">🏯 Tokyo, Japan</div>
-                <div class="itinerary-description">Experience traditional culture meets modern innovation</div>
-            </div>
-            
-            <div class="itinerary-item">
-                <div class="itinerary-date">May 20-27, 2025</div>
-                <div class="itinerary-title">🏛️ Rome, Italy</div>
-                <div class="itinerary-description">Walk through ancient history - Colosseum, Vatican, and authentic pasta</div>
-            </div>
-            
-            <button class="add-btn" onclick="alert('Add new trip feature coming soon!')">+</button>
+            <button class="add-btn" onclick="openNewTripModal()">+</button>
         </div>
         
-        <!-- Navigation Tab -->
+        <!-- Navigation/Explore Tab -->
         <div id="navigation-tab" class="tab-content hidden">
-            <div class="navigation-feature">
-                <div class="feature-icon">🗺️</div>
-                <h3 style="margin-bottom: 1rem;">Smart Navigation</h3>
-                <p style="color: #64748b; margin-bottom: 1.5rem;">Get real-time directions and discover hidden gems along your route</p>
-                <button class="btn" style="width: auto; padding: 0.8rem 2rem;" onclick="alert('Navigation feature coming soon!')">
-                    Open Maps
-                </button>
+            <div class="search-box">
+                <input type="text" id="destination-search" placeholder="Search destinations..." style="width: 100%; padding: 0.8rem; border: 2px solid #e1e8ed; border-radius: 10px;">
             </div>
-            
-            <div class="navigation-feature">
-                <div class="feature-icon">📱</div>
-                <h3 style="margin-bottom: 1rem;">Offline Access</h3>
-                <p style="color: #64748b; margin-bottom: 1.5rem;">Download maps and access your itinerary even without internet</p>
-                <button class="btn" style="width: auto; padding: 0.8rem 2rem;" onclick="alert('Offline feature coming soon!')">
-                    Download Maps
-                </button>
+            <div id="destinations-list">
+                <!-- Destinations will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- New Trip Modal -->
+    <div id="new-trip-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Plan New Trip</h3>
+                <button class="close-btn" onclick="closeModal('new-trip-modal')">&times;</button>
+            </div>
+            <form id="new-trip-form">
+                <div class="form-group">
+                    <input type="text" name="destination" placeholder="Destination (e.g., Paris, France)" required>
+                </div>
+                <div class="form-group">
+                    <input type="date" name="startDate" required>
+                </div>
+                <div class="form-group">
+                    <input type="date" name="endDate" required>
+                </div>
+                <div class="form-group">
+                    <textarea name="description" placeholder="What do you want to do there?"></textarea>
+                </div>
+                <button type="submit" class="btn">Add Trip</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Weather Modal -->
+    <div id="weather-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Weather Updates</h3>
+                <button class="close-btn" onclick="closeModal('weather-modal')">&times;</button>
+            </div>
+            <div id="weather-content">
+                <!-- Weather content will be populated here -->
             </div>
         </div>
     </div>
 
     <script>
         let currentUser = null;
+        let userTrips = [];
+        let destinations = [];
 
-        // Toggle between Sign In and Sign Up forms with animation
+        // Sample destinations data
+        const sampleDestinations = [
+            { name: "Paris, France", description: "City of Light with iconic landmarks and romantic atmosphere", emoji: "🗼" },
+            { name: "Tokyo, Japan", description: "Modern metropolis blending tradition with cutting-edge technology", emoji: "🏯" },
+            { name: "Rome, Italy", description: "Ancient history meets delicious cuisine in the Eternal City", emoji: "🏛️" },
+            { name: "New York, USA", description: "The city that never sleeps with endless possibilities", emoji: "🗽" },
+            { name: "London, UK", description: "Rich history, royal palaces, and vibrant culture", emoji: "🏰" },
+            { name: "Dubai, UAE", description: "Futuristic city with luxury shopping and stunning architecture", emoji: "🏙️" },
+            { name: "Bali, Indonesia", description: "Tropical paradise with beautiful beaches and temples", emoji: "🏝️" },
+            { name: "Barcelona, Spain", description: "Artistic architecture and Mediterranean charm", emoji: "🎨" },
+            { name: "Sydney, Australia", description: "Harbor city with iconic opera house and beaches", emoji: "🌊" },
+            { name: "Santorini, Greece", description: "Stunning sunsets and white-washed buildings", emoji: "🌅" }
+        ];
+
+        // Sample weather data
+        function generateWeatherData() {
+            const weathers = [
+                { temp: "22°C", condition: "Sunny", emoji: "☀️" },
+                { temp: "18°C", condition: "Partly Cloudy", emoji: "⛅" },
+                { temp: "15°C", condition: "Rainy", emoji: "🌧️" },
+                { temp: "25°C", condition: "Clear", emoji: "🌤️" }
+            ];
+            return weathers[Math.floor(Math.random() * weathers.length)];
+        }
+
         function toggleAuthMode() {
             const signinForm = document.getElementById('signin-form');
             const signupForm = document.getElementById('signup-form');
@@ -501,96 +672,192 @@
             signupForm.classList.toggle('hidden');
         }
 
-        // Remove the duplicate event listeners since they're now in DOMContentLoaded
-
         function showMainApp() {
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('main-app').classList.remove('hidden');
             document.getElementById('main-app').classList.add('fade-in');
             document.getElementById('user-name').textContent = currentUser.name || "Traveler";
+            updateDashboardStats();
+            renderItineraries();
+            generateDestinations();
         }
 
-        // Logout function
         function logout() {
             currentUser = null;
+            userTrips = [];
             document.getElementById('main-app').classList.add('hidden');
             document.getElementById('auth-screen').classList.remove('hidden');
             document.getElementById('auth-screen').classList.add('fade-in');
             
-            // Reset forms
             document.getElementById('signin-form').classList.remove('hidden');
             document.getElementById('signup-form').classList.add('hidden');
             document.getElementById('signin-form-element').reset();
             document.getElementById('signup-form-element').reset();
         }
 
-        // Enhanced tab switching with smooth transitions
         function showTab(tab) {
-            // Hide all tabs
             const tabs = ['dashboard', 'itinerary', 'navigation'];
             tabs.forEach(t => {
                 document.getElementById(t + '-tab').classList.add('hidden');
             });
             
-            // Remove active from all buttons
             const btns = document.getElementsByClassName('tab-btn');
             for (let i = 0; i < btns.length; i++) {
                 btns[i].classList.remove('active');
             }
             
-            // Show selected tab with animation
             const selectedTab = document.getElementById(tab + '-tab');
             selectedTab.classList.remove('hidden');
             selectedTab.classList.add('fade-in');
             
-            // Set active button
             const tabIndex = tabs.indexOf(tab);
             if (tabIndex !== -1) {
                 btns[tabIndex].classList.add('active');
             }
             
-            // Remove animation class after animation completes
             setTimeout(() => {
                 selectedTab.classList.remove('fade-in');
             }, 500);
         }
 
-        // Add some interactive feedback and initialize event listeners
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize form event listeners
-            const signinForm = document.getElementById('signin-form-element');
-            const signupForm = document.getElementById('signup-form-element');
+        function openNewTripModal() {
+            document.getElementById('new-trip-modal').classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function addTrip(tripData) {
+            const trip = {
+                id: Date.now(),
+                destination: tripData.destination,
+                startDate: tripData.startDate,
+                endDate: tripData.endDate,
+                description: tripData.description || "Exciting adventure awaits!",
+                emoji: getDestinationEmoji(tripData.destination)
+            };
             
-            if (signinForm) {
-                signinForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    const email = this.querySelector('input[type="email"]').value;
-                    currentUser = { name: email.split('@')[0], email: email };
-                    showMainApp();
-                });
-            }
-            
-            if (signupForm) {
-                signupForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    const name = this.querySelector('input[name="name"]').value;
-                    const email = this.querySelector('input[type="email"]').value;
-                    currentUser = { name: name, email: email };
-                    showMainApp();
-                });
-            }
-            
-            // Add hover effects to buttons
-            const buttons = document.querySelectorAll('.btn, .quick-action, .itinerary-item');
-            buttons.forEach(button => {
-                button.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-2px)';
-                });
-                button.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0)';
-                });
+            userTrips.push(trip);
+            updateDashboardStats();
+            renderItineraries();
+            showNotification('Trip added successfully!');
+        }
+
+        function deleteTrip(tripId) {
+            userTrips = userTrips.filter(trip => trip.id !== tripId);
+            updateDashboardStats();
+            renderItineraries();
+            showNotification('Trip removed successfully!');
+        }
+
+        function getDestinationEmoji(destination) {
+            const found = sampleDestinations.find(d => 
+                d.name.toLowerCase().includes(destination.toLowerCase().split(',')[0])
+            );
+            return found ? found.emoji : "🌍";
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric' 
             });
-        });
-    </script>
-</body>
-</html>
+        }
+
+        function updateDashboardStats() {
+            document.getElementById('trips-count').textContent = userTrips.length;
+            document.getElementById('places-count').textContent = userTrips.length;
+        }
+
+        function renderItineraries() {
+            const container = document.getElementById('itinerary-list');
+            
+            if (userTrips.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #64748b;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">✈️</div>
+                        <h3>No trips planned yet</h3>
+                        <p>Start planning your next adventure!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = userTrips.map(trip => `
+                <div class="itinerary-item">
+                    <button class="delete-btn" onclick="deleteTrip(${trip.id})">&times;</button>
+                    <div class="itinerary-date">${formatDate(trip.startDate)} - ${formatDate(trip.endDate)}</div>
+                    <div class="itinerary-title">${trip.emoji} ${trip.destination}</div>
+                    <div class="itinerary-description">${trip.description}</div>
+                </div>
+            `).join('');
+        }
+
+        function generateDestinations() {
+            destinations = [...sampleDestinations];
+            renderDestinations(destinations);
+        }
+
+        function renderDestinations(destinationsToRender) {
+            const container = document.getElementById('destinations-list');
+            
+            container.innerHTML = destinationsToRender.map(dest => `
+                <div class="destination-card" onclick="selectDestination('${dest.name}')">
+                    <div class="destination-name">${dest.emoji} ${dest.name}</div>
+                    <div class="destination-description">${dest.description}</div>
+                </div>
+            `).join('');
+        }
+
+        function selectDestination(destinationName) {
+            const today = new Date();
+            const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+            
+            const tripData = {
+                destination: destinationName,
+                startDate: nextWeek.toISOString().split('T')[0],
+                endDate: new Date(nextWeek.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                description: `Explore the amazing ${destinationName}!`
+            };
+            
+            addTrip(tripData);
+            showTab('itinerary');
+        }
+
+        function showWeather() {
+            const weatherContent = document.getElementById('weather-content');
+            
+            if (userTrips.length === 0) {
+                weatherContent.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #64748b;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🌤️</div>
+                        <h3>No trips to show weather for</h3>
+                        <p>Add some trips to see weather updates!</p>
+                    </div>
+                `;
+            } else {
+                weatherContent.innerHTML = userTrips.map(trip => {
+                    const weather = generateWeatherData();
+                    return `
+                        <div class="weather-card">
+                            <h3>${trip.destination}</h3>
+                            <div class="weather-temp">${weather.temp}</div>
+                            <div>${weather.emoji} ${weather.condition}</div>
+                            <div style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.8;">
+                                Trip: ${formatDate(trip.startDate)} - ${formatDate(trip.endDate)}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            document.getElementById('weather-modal').classList.remove('hidden');
+        }
+
+        function searchDestinations() {
+            const searchTerm = document.getElementById('destination-search').value.toLowerCase();
+            const filtered = destinations.filter(dest => 
+                dest.name.toLowerCase().includes(searchTerm) ||
