@@ -1,978 +1,603 @@
-import { useState, useEffect } from 'react';
-import { Home, Map, DollarSign, Train, Bus, Hotel, Utensils, ShoppingCart, Landmark, Globe, Languages, Users, CalendarClock } from 'lucide-react';
-import { Button } from "/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "/components/ui/card";
-import { Input } from "/components/ui/input";
-import { Label } from "/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Travel Companion</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .lucide { width: 1em; height: 1em; display: inline-block; vertical-align: middle; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
 
-type ItineraryItem = {
-  id: string;
-  destination: string;
-  startDate: string;
-  endDate: string;
-  activities: string;
-  travelMode: 'flight' | 'train' | 'bus' | 'self-drive';
-  status: 'planned' | 'completed' | 'rescheduled';
-};
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
-type ExpenseItem = {
-  id: string;
-  amount: number;
-  currency: string;
-  category: 'food' | 'transport' | 'accommodation' | 'shopping' | 'sightseeing' | 'other';
-  description: string;
-  date: string;
-  paymentMethod: 'cash' | 'upi' | 'card' | 'netbanking';
-  convertedAmount: number;
-};
+        // Lucide Icons (simplified)
+        const Icon = ({ name, className = "h-4 w-4" }) => (
+            <svg className={`lucide ${className}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {name === 'home' && <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/>}
+                {name === 'map' && <polygon points="1,6 1,22 8,18 16,22 23,18 23,2 16,6 8,2"/>}
+                {name === 'dollar-sign' && <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>}
+                {name === 'users' && <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>}
+                {name === 'languages' && <path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/>}
+                {name === 'globe' && <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>}
+                {name === 'train' && <rect x="1" y="3" width="15" height="13" rx="2"/><line x1="16" y1="8" x2="16" y2="16"/><line x1="1" y1="8" x2="15" y2="8"/><circle cx="5.5" cy="13.5" r="0.5"/><circle cx="10.5" cy="13.5" r="0.5"/>}
+                {name === 'bus' && <path d="M8 6v6"/><path d="M15 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2v-.2H22V9.5c0-.3-.1-.6-.2-.9L20.6 5H3.4L2.2 8.6c-.1.3-.2.6-.2.9V14c0 .4.1.8.2 1.2.3 1.1.8 2.8.8 2.8h3"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>}
+                {name === 'calendar-clock' && <path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h3.5"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h5"/><circle cx="16" cy="16" r="6"/><path d="M16 14v2l1 1"/>}
+                {/* Add more icons as needed */}
+            </svg>
+        );
 
-type ConnectionItem = {
-  id: string;
-  name: string;
-  location: string;
-  contact: string;
-  type: 'guide' | 'driver' | 'host' | 'other';
-  notes: string;
-};
+        // UI Components
+        const Button = ({ children, onClick, variant = "default", size = "default", className = "", type = "button", ...props }) => {
+            const baseClasses = "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background";
+            const variants = {
+                default: "bg-blue-600 text-white hover:bg-blue-700",
+                outline: "border border-gray-300 bg-transparent hover:bg-gray-100",
+                ghost: "hover:bg-gray-100"
+            };
+            const sizes = {
+                default: "h-10 py-2 px-4",
+                sm: "h-9 px-3 rounded-md"
+            };
+            
+            return (
+                <button 
+                    className={`${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`}
+                    onClick={onClick}
+                    type={type}
+                    {...props}
+                >
+                    {children}
+                </button>
+            );
+        };
 
-type LanguagePhrase = {
-  id: string;
-  english: string;
-  local: string;
-  pronunciation: string;
-  category: 'greetings' | 'directions' | 'food' | 'emergency';
-};
-
-export default function SmartTravelCompanion() {
-  // State management
-  const [activeTab, setActiveTab] = useState<'itinerary' | 'navigation' | 'budget' | 'connections' | 'language'>('itinerary');
-  const [itineraries, setItineraries] = useState<ItineraryItem[]>([]);
-  const [expenses, setExpenses] = useState<ExpenseItem[]>([]);
-  const [connections, setConnections] = useState<ConnectionItem[]>([]);
-  const [phrases, setPhrases] = useState<LanguagePhrase[]>([]);
-  const [budget, setBudget] = useState<number>(0);
-  const [baseCurrency, setBaseCurrency] = useState<string>('INR');
-  const [autoReschedule, setAutoReschedule] = useState<boolean>(true);
-  const [currentLocation, setCurrentLocation] = useState<{lat: number, lng: number} | null>(null);
-  const [destination, setDestination] = useState('');
-
-  // Form states
-  const [newItinerary, setNewItinerary] = useState<Omit<ItineraryItem, 'id' | 'status'>>({
-    destination: '',
-    startDate: '',
-    endDate: '',
-    activities: '',
-    travelMode: 'train'
-  });
-  
-  const [newExpense, setNewExpense] = useState<Omit<ExpenseItem, 'id' | 'convertedAmount'>>({
-    amount: 0,
-    currency: 'INR',
-    category: 'food',
-    description: '',
-    date: new Date().toISOString().split('T')[0],
-    paymentMethod: 'upi'
-  });
-
-  const [newConnection, setNewConnection] = useState<Omit<ConnectionItem, 'id'>>({
-    name: '',
-    location: '',
-    contact: '',
-    type: 'guide',
-    notes: ''
-  });
-
-  const [newPhrase, setNewPhrase] = useState<Omit<LanguagePhrase, 'id'>>({
-    english: '',
-    local: '',
-    pronunciation: '',
-    category: 'greetings'
-  });
-
-  // Currency rates (simplified - in real app, fetch from API)
-  const [currencyRates, setCurrencyRates] = useState<Record<string, number>>({
-    USD: 83.5,
-    EUR: 89.2,
-    GBP: 105.4,
-    INR: 1,
-    AED: 22.7,
-    SGD: 61.8
-  });
-
-  // Format currency
-  const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
-
-  // Convert amount between currencies
-  const convertCurrency = (amount: number, from: string, to: string) => {
-    return amount * (currencyRates[to] || 1) / (currencyRates[from] || 1);
-  };
-
-  // Auto-reschedule conflicting itineraries
-  const checkAndReschedule = (newItinerary: ItineraryItem) => {
-    if (!autoReschedule) return;
-
-    const conflicts = itineraries.filter(item => 
-      item.id !== newItinerary.id && 
-      item.status === 'planned' &&
-      ((new Date(newItinerary.startDate) <= new Date(item.endDate) && 
-        new Date(newItinerary.endDate) >= new Date(item.startDate))
-      )
-    );
-
-    if (conflicts.length > 0) {
-      const updated = itineraries.map(item => {
-        if (conflicts.some(c => c.id === item.id)) {
-          const newStartDate = new Date(item.startDate);
-          newStartDate.setDate(newStartDate.getDate() + 1);
-          const newEndDate = new Date(item.endDate);
-          newEndDate.setDate(newEndDate.getDate() + 1);
-          
-          return {
-            ...item,
-            startDate: newStartDate.toISOString().split('T')[0],
-            endDate: newEndDate.toISOString().split('T')[0],
-            status: 'rescheduled'
-          };
-        }
-        return item;
-      });
-
-      setItineraries(updated);
-      alert(`${conflicts.length} itinerary(s) automatically rescheduled to avoid conflicts`);
-    }
-  };
-
-  // Handle itinerary submission with auto-rescheduling
-  const handleItinerarySubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const itineraryToAdd = {
-      ...newItinerary,
-      id: Date.now().toString(),
-      status: 'planned' as const
-    };
-    
-    checkAndReschedule(itineraryToAdd);
-    setItineraries([...itineraries, itineraryToAdd]);
-    setNewItinerary({
-      destination: '',
-      startDate: '',
-      endDate: '',
-      activities: '',
-      travelMode: 'train'
-    });
-  };
-
-  // Handle expense submission with currency conversion
-  const handleExpenseSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setExpenses([...expenses, {
-      ...newExpense,
-      id: Date.now().toString(),
-      convertedAmount: convertCurrency(newExpense.amount, newExpense.currency, baseCurrency)
-    }]);
-    setNewExpense({
-      amount: 0,
-      currency: 'INR',
-      category: 'food',
-      description: '',
-      date: new Date().toISOString().split('T')[0],
-      paymentMethod: 'upi'
-    });
-  };
-
-  // Get current location
-  const getCurrentLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setCurrentLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          });
-        },
-        (error) => {
-          console.error("Error getting location:", error);
-        }
-      );
-    }
-  };
-
-  // Calculate budget summary
-  const totalExpenses = expenses.reduce((sum, expense) => sum + expense.convertedAmount, 0);
-  const remainingBudget = budget - totalExpenses;
-
-  // Load sample data
-  useEffect(() => {
-    // Sample phrases
-    setPhrases([
-      {
-        id: '1',
-        english: 'Hello',
-        local: 'नमस्ते',
-        pronunciation: 'na-mas-tay',
-        category: 'greetings'
-      },
-      {
-        id: '2',
-        english: 'How much does this cost?',
-        local: 'यह कितने का है?',
-        pronunciation: 'yah kit-nay ka hai?',
-        category: 'food'
-      },
-      {
-        id: '3',
-        english: 'Where is the restroom?',
-        local: 'शौचालय कहाँ है?',
-        pronunciation: 'shau-cha-lay ka-han hai?',
-        category: 'directions'
-      }
-    ]);
-
-    // Sample connections
-    setConnections([
-      {
-        id: '1',
-        name: 'Rajesh Kumar',
-        location: 'Delhi',
-        contact: '+91 98765 43210',
-        type: 'guide',
-        notes: 'Speaks English and Hindi'
-      },
-      {
-        id: '2',
-        name: 'Sunil Taxi Service',
-        location: 'Mumbai',
-        contact: '+91 87654 32109',
-        type: 'driver',
-        notes: '24/7 available'
-      }
-    ]);
-  }, []);
-
-  return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <Card className="max-w-6xl mx-auto">
-        <CardHeader>
-          <CardTitle className="text-2xl flex items-center gap-2">
-            <Globe className="h-6 w-6" />
-            Smart Travel Companion
-          </CardTitle>
-          <CardDescription>Your all-in-one intelligent travel assistant</CardDescription>
-          
-          <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
-            <Button 
-              variant={activeTab === 'itinerary' ? 'default' : 'outline'} 
-              onClick={() => setActiveTab('itinerary')}
-              className="flex items-center gap-2"
-            >
-              <Home className="h-4 w-4" />
-              Itinerary
-            </Button>
-            <Button 
-              variant={activeTab === 'navigation' ? 'default' : 'outline'} 
-              onClick={() => setActiveTab('navigation')}
-              className="flex items-center gap-2"
-            >
-              <Map className="h-4 w-4" />
-              Navigation
-            </Button>
-            <Button 
-              variant={activeTab === 'budget' ? 'default' : 'outline'} 
-              onClick={() => setActiveTab('budget')}
-              className="flex items-center gap-2"
-            >
-              <DollarSign className="h-4 w-4" />
-              Smart Budget
-            </Button>
-            <Button 
-              variant={activeTab === 'connections' ? 'default' : 'outline'} 
-              onClick={() => setActiveTab('connections')}
-              className="flex items-center gap-2"
-            >
-              <Users className="h-4 w-4" />
-              Local Connections
-            </Button>
-            <Button 
-              variant={activeTab === 'language' ? 'default' : 'outline'} 
-              onClick={() => setActiveTab('language')}
-              className="flex items-center gap-2"
-            >
-              <Languages className="h-4 w-4" />
-              Language Helper
-            </Button>
-          </div>
-        </CardHeader>
-
-        <CardContent>
-          {/* Itinerary Tab with Auto-Rescheduling */}
-          {activeTab === 'itinerary' && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold">Travel Plans</h2>
-                <div className="flex items-center gap-2">
-                  <Switch 
-                    id="auto-reschedule" 
-                    checked={autoReschedule}
-                    onCheckedChange={setAutoReschedule}
-                  />
-                  <Label htmlFor="auto-reschedule">Auto-Reschedule Conflicts</Label>
-                </div>
-              </div>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Add New Itinerary</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleItinerarySubmit} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="destination">Destination</Label>
-                        <Input
-                          id="destination"
-                          value={newItinerary.destination}
-                          onChange={(e) => setNewItinerary({...newItinerary, destination: e.target.value})}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Travel Mode</Label>
-                        <RadioGroup 
-                          value={newItinerary.travelMode}
-                          onValueChange={(value) => setNewItinerary({...newItinerary, travelMode: value as any})}
-                          className="grid grid-cols-4 gap-2"
-                        >
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="train" id="train" />
-                            <Label htmlFor="train" className="flex items-center gap-1">
-                              <Train className="h-4 w-4" /> Train
-                            </Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="bus" id="bus" />
-                            <Label htmlFor="bus" className="flex items-center gap-1">
-                              <Bus className="h-4 w-4" /> Bus
-                            </Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="flight" id="flight" />
-                            <Label htmlFor="flight" className="flex items-center gap-1">
-                              <Map className="h-4 w-4" /> Flight
-                            </Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="self-drive" id="self-drive" />
-                            <Label htmlFor="self-drive">Self Drive</Label>
-                          </div>
-                        </RadioGroup>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="startDate">Start Date</Label>
-                        <Input
-                          id="startDate"
-                          type="date"
-                          value={newItinerary.startDate}
-                          onChange={(e) => setNewItinerary({...newItinerary, startDate: e.target.value})}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="endDate">End Date</Label>
-                        <Input
-                          id="endDate"
-                          type="date"
-                          value={newItinerary.endDate}
-                          onChange={(e) => setNewItinerary({...newItinerary, endDate: e.target.value})}
-                          required
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="activities">Activities</Label>
-                      <Textarea
-                        id="activities"
-                        value={newItinerary.activities}
-                        onChange={(e) => setNewItinerary({...newItinerary, activities: e.target.value})}
-                        rows={3}
-                        placeholder="List your planned activities..."
-                      />
-                    </div>
-                    <Button type="submit">Add Itinerary</Button>
-                  </form>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Your Itineraries</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {itineraries.length === 0 ? (
-                    <p className="text-gray-500">No itineraries added yet.</p>
-                  ) : (
-                    <div className="space-y-4">
-                      {itineraries.map((itinerary) => (
-                        <Card key={itinerary.id} className={itinerary.status === 'rescheduled' ? 'border-yellow-200 bg-yellow-50' : ''}>
-                          <CardHeader>
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <div className="flex items-center gap-2">
-                                  {itinerary.status === 'rescheduled' && (
-                                    <Badge variant="secondary" className="flex items-center gap-1">
-                                      <CalendarClock className="h-3 w-3" /> Rescheduled
-                                    </Badge>
-                                  )}
-                                  <CardTitle>{itinerary.destination}</CardTitle>
-                                </div>
-                                <CardDescription>
-                                  {new Date(itinerary.startDate).toLocaleDateString()} to {new Date(itinerary.endDate).toLocaleDateString()} • {itinerary.travelMode}
-                                </CardDescription>
-                              </div>
-                              <div className="flex gap-2">
-                                <Button variant="outline" size="sm">View Details</Button>
-                              </div>
-                            </div>
-                          </CardHeader>
-                          <CardContent>
-                            <p className="whitespace-pre-line">{itinerary.activities}</p>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+        const Card = ({ children, className = "" }) => (
+            <div className={`rounded-lg border bg-white shadow-sm ${className}`}>
+                {children}
             </div>
-          )}
+        );
 
-          {/* Smart Budget Tab with Currency Converter */}
-          {activeTab === 'budget' && (
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Budget Overview</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div className="p-4 bg-blue-50 rounded-lg">
-                      <h3 className="font-semibold text-blue-800">Total Budget</h3>
-                      <p className="text-2xl font-bold">{formatCurrency(budget, baseCurrency)}</p>
-                    </div>
-                    <div className="p-4 bg-red-50 rounded-lg">
-                      <h3 className="font-semibold text-red-800">Total Expenses</h3>
-                      <p className="text-2xl font-bold">{formatCurrency(totalExpenses, baseCurrency)}</p>
-                    </div>
-                    <div className={`p-4 rounded-lg ${
-                      remainingBudget >= 0 ? 'bg-green-50' : 'bg-yellow-50'
-                    }`}>
-                      <h3 className={`font-semibold ${
-                        remainingBudget >= 0 ? 'text-green-800' : 'text-yellow-800'
-                      }`}>
-                        Remaining Budget
-                      </h3>
-                      <p className="text-2xl font-bold">{formatCurrency(remainingBudget, baseCurrency)}</p>
-                    </div>
-                  </div>
+        const CardHeader = ({ children }) => (
+            <div className="flex flex-col space-y-1.5 p-6 pb-4">{children}</div>
+        );
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Add New Expense</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <form onSubmit={handleExpenseSubmit} className="space-y-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="amount">Amount</Label>
-                            <div className="flex gap-2">
-                              <Input
-                                id="amount"
-                                type="number"
-                                value={newExpense.amount || ''}
-                                onChange={(e) => setNewExpense({...newExpense, amount: Number(e.target.value)})}
-                                min="0"
-                                step="10"
-                                required
-                              />
-                              <Select
-                                value={newExpense.currency}
-                                onValueChange={(value) => setNewExpense({...newExpense, currency: value})}
-                              >
-                                <SelectTrigger className="w-[100px]">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {Object.keys(currencyRates).map(currency => (
-                                    <SelectItem key={currency} value={currency}>{currency}</SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            {newExpense.currency !== baseCurrency && (
-                              <p className="text-sm text-gray-500">
-                                ≈ {formatCurrency(convertCurrency(newExpense.amount, newExpense.currency, baseCurrency), baseCurrency)}
-                              </p>
+        const CardTitle = ({ children, className = "" }) => (
+            <h3 className={`text-lg font-semibold leading-none tracking-tight ${className}`}>{children}</h3>
+        );
+
+        const CardDescription = ({ children }) => (
+            <p className="text-sm text-gray-600">{children}</p>
+        );
+
+        const CardContent = ({ children }) => (
+            <div className="p-6 pt-0">{children}</div>
+        );
+
+        const Input = ({ className = "", ...props }) => (
+            <input className={`flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 ${className}`} {...props} />
+        );
+
+        const Label = ({ children, htmlFor, className = "" }) => (
+            <label htmlFor={htmlFor} className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${className}`}>
+                {children}
+            </label>
+        );
+
+        const Textarea = ({ className = "", ...props }) => (
+            <textarea className={`flex min-h-[80px] w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 ${className}`} {...props} />
+        );
+
+        const Select = ({ children, value, onValueChange }) => {
+            const [isOpen, setIsOpen] = useState(false);
+            const [selectedValue, setSelectedValue] = useState(value || '');
+
+            const handleSelect = (newValue) => {
+                setSelectedValue(newValue);
+                onValueChange?.(newValue);
+                setIsOpen(false);
+            };
+
+            return (
+                <div className="relative">
+                    <button
+                        type="button"
+                        className="flex h-10 w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        onClick={() => setIsOpen(!isOpen)}
+                    >
+                        <span>{selectedValue || 'Select...'}</span>
+                        <Icon name="chevron-down" className="h-4 w-4" />
+                    </button>
+                    {isOpen && (
+                        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+                            {React.Children.map(children, (child) => 
+                                React.cloneElement(child, { onSelect: handleSelect })
                             )}
-                          </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                              <Label htmlFor="category">Category</Label>
-                              <Select
-                                value={newExpense.category}
-                                onValueChange={(value) => setNewExpense({...newExpense, category: value as any})}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="food">Food</SelectItem>
-                                  <SelectItem value="transport">Transport</SelectItem>
-                                  <SelectItem value="accommodation">Accommodation</SelectItem>
-                                  <SelectItem value="shopping">Shopping</SelectItem>
-                                  <SelectItem value="sightseeing">Sightseeing</SelectItem>
-                                  <SelectItem value="other">Other</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor="date">Date</Label>
-                              <Input
-                                id="date"
-                                type="date"
-                                value={newExpense.date}
-                                onChange={(e) => setNewExpense({...newExpense, date: e.target.value})}
-                                required
-                              />
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <Label>Payment Method</Label>
-                            <RadioGroup 
-                              value={newExpense.paymentMethod}
-                              onValueChange={(value) => setNewExpense({...newExpense, paymentMethod: value as any})}
-                              className="grid grid-cols-2 gap-2"
-                            >
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="cash" id="cash" />
-                                <Label htmlFor="cash">Cash</Label>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="upi" id="upi" />
-                                <Label htmlFor="upi">UPI</Label>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="card" id="card" />
-                                <Label htmlFor="card">Card</Label>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="netbanking" id="netbanking" />
-                                <Label htmlFor="netbanking">Net Banking</Label>
-                              </div>
-                            </RadioGroup>
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="description">Description</Label>
-                            <Input
-                              id="description"
-                              value={newExpense.description}
-                              onChange={(e) => setNewExpense({...newExpense, description: e.target.value})}
-                            />
-                          </div>
-                          <Button type="submit">Add Expense</Button>
-                        </form>
-                      </CardContent>
-                    </Card>
-
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Currency Converter</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                          <Label>Base Currency</Label>
-                          <Select
-                            value={baseCurrency}
-                            onValueChange={setBaseCurrency}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {Object.keys(currencyRates).map(currency => (
-                                <SelectItem key={currency} value={currency}>{currency}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
                         </div>
-                        <div className="grid grid-cols-3 gap-2">
-                          {Object.entries(currencyRates)
-                            .filter(([currency]) => currency !== baseCurrency)
-                            .map(([currency, rate]) => (
-                              <Card key={currency} className="p-3">
-                                <div className="flex justify-between items-center">
-                                  <span className="font-medium">{currency}</span>
-                                  <span className="font-bold">
-                                    {formatCurrency(1 / rate * currencyRates[baseCurrency], baseCurrency)}
-                                  </span>
-                                </div>
-                              </Card>
-                            ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Expense History</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {expenses.length === 0 ? (
-                    <p className="text-gray-500">No expenses recorded yet.</p>
-                  ) : (
-                    <div className="space-y-4">
-                      {expenses.map((expense) => (
-                        <Card key={expense.id}>
-                          <CardHeader>
-                            <div className="flex justify-between items-center">
-                              <div>
-                                <CardTitle>
-                                  {formatCurrency(expense.convertedAmount, baseCurrency)}
-                                  {expense.currency !== baseCurrency && (
-                                    <span className="text-sm text-gray-500 ml-2">
-                                      ({formatCurrency(expense.amount, expense.currency)})
-                                    </span>
-                                  )}
-                                </CardTitle>
-                                <CardDescription>
-                                  {expense.category} • {expense.date} • {expense.paymentMethod}
-                                </CardDescription>
-                              </div>
-                              <Button variant="ghost" size="sm">Edit</Button>
-                            </div>
-                          </CardHeader>
-                          {expense.description && (
-                            <CardContent>
-                              <p>{expense.description}</p>
-                            </CardContent>
-                          )}
-                        </Card>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          {/* Local Connections Tab */}
-          {activeTab === 'connections' && (
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Add Local Connection</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <form className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="name">Name</Label>
-                        <Input
-                          id="name"
-                          value={newConnection.name}
-                          onChange={(e) => setNewConnection({...newConnection, name: e.target.value})}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="type">Connection Type</Label>
-                        <Select
-                          value={newConnection.type}
-                          onValueChange={(value) => setNewConnection({...newConnection, type: value as any})}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="guide">Guide</SelectItem>
-                            <SelectItem value="driver">Driver</SelectItem>
-                            <SelectItem value="host">Local Host</SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="location">Location</Label>
-                        <Input
-                          id="location"
-                          value={newConnection.location}
-                          onChange={(e) => setNewConnection({...newConnection, location: e.target.value})}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="contact">Contact</Label>
-                        <Input
-                          id="contact"
-                          value={newConnection.contact}
-                          onChange={(e) => setNewConnection({...newConnection, contact: e.target.value})}
-                          required
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="notes">Notes</Label>
-                      <Textarea
-                        id="notes"
-                        value={newConnection.notes}
-                        onChange={(e) => setNewConnection({...newConnection, notes: e.target.value})}
-                        rows={2}
-                      />
-                    </div>
-                    <Button type="button" onClick={() => {
-                      setConnections([...connections, {
-                        ...newConnection,
-                        id: Date.now().toString()
-                      }]);
-                      setNewConnection({
-                        name: '',
-                        location: '',
-                        contact: '',
-                        type: 'guide',
-                        notes: ''
-                      });
-                    }}>
-                      Add Connection
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Your Connections</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {connections.length === 0 ? (
-                    <p className="text-gray-500">No connections added yet.</p>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {connections.map((connection) => (
-                        <Card key={connection.id}>
-                          <CardHeader>
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <CardTitle>{connection.name}</CardTitle>
-                                <CardDescription className="capitalize">
-                                  {connection.type} • {connection.location}
-                                </CardDescription>
-                              </div>
-                              <Badge variant="outline">{connection.type}</Badge>
-                            </div>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="space-y-2">
-                              <div>
-                                <p className="font-medium">Contact:</p>
-                                <p>{connection.contact}</p>
-                              </div>
-                              {connection.notes && (
-                                <div>
-                                  <p className="font-medium">Notes:</p>
-                                  <p>{connection.notes}</p>
-                                </div>
-                              )}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          {/* Language Interpreter Tab */}
-          {activeTab === 'language' && (
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Add Useful Phrase</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <form className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="english">English Phrase</Label>
-                      <Input
-                        id="english"
-                        value={newPhrase.english}
-                        onChange={(e) => setNewPhrase({...newPhrase, english: e.target.value})}
-                        required
-                      />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="local">Local Language</Label>
-                        <Input
-                          id="local"
-                          value={newPhrase.local}
-                          onChange={(e) => setNewPhrase({...newPhrase, local: e.target.value})}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="pronunciation">Pronunciation</Label>
-                        <Input
-                          id="pronunciation"
-                          value={newPhrase.pronunciation}
-                          onChange={(e) => setNewPhrase({...newPhrase, pronunciation: e.target.value})}
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Category</Label>
-                      <RadioGroup 
-                        value={newPhrase.category}
-                        onValueChange={(value) => setNewPhrase({...newPhrase, category: value as any})}
-                        className="grid grid-cols-4 gap-2"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="greetings" id="greetings" />
-                          <Label htmlFor="greetings">Greetings</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="directions" id="directions" />
-                          <Label htmlFor="directions">Directions</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="food" id="food" />
-                          <Label htmlFor="food">Food</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="emergency" id="emergency" />
-                          <Label htmlFor="emergency">Emergency</Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-                    <Button type="button" onClick={() => {
-                      setPhrases([...phrases, {
-                        ...newPhrase,
-                        id: Date.now().toString()
-                      }]);
-                      setNewPhrase({
-                        english: '',
-                        local: '',
-                        pronunciation: '',
-                        category: 'greetings'
-                      });
-                    }}>
-                      Add Phrase
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Your Phrasebook</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex gap-2 overflow-x-auto pb-2">
-                      <Button 
-                        variant="outline"
-                        onClick={() => {
-                          const categories = ['greetings', 'directions', 'food', 'emergency'];
-                          const samplePhrases = [
-                            {
-                              english: 'Thank you',
-                              local: 'धन्यवाद',
-                              pronunciation: 'dhun-yuh-vaad',
-                              category: 'greetings'
-                            },
-                            {
-                              english: 'Where is the hospital?',
-                              local: 'अस्पताल कहाँ है?',
-                              pronunciation: 'as-pa-taal ka-han hai?',
-                              category: 'directions'
-                            },
-                            {
-                              english: 'I need help',
-                              local: 'मुझे मदद चाहिए',
-                              pronunciation: 'mujhe madad chaahiye',
-                              category: 'emergency'
-                            }
-                          ];
-                          setPhrases([...phrases, ...samplePhrases.map((p, i) => ({
-                            ...p,
-                            id: `sample-${i}`
-                          }))]);
-                        }}
-                      >
-                        Load Sample Phrases
-                      </Button>
-                    </div>
-
-                    {phrases.length === 0 ? (
-                      <p className="text-gray-500">No phrases added yet.</p>
-                    ) : (
-                      <div className="space-y-4">
-                        {['greetings', 'directions', 'food', 'emergency'].map((category) => {
-                          const categoryPhrases = phrases.filter(p => p.category === category);
-                          if (categoryPhrases.length === 0) return null;
-                          
-                          return (
-                            <div key={category}>
-                              <h3 className="font-semibold capitalize mb-2">{category}</h3>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {categoryPhrases.map((phrase) => (
-                                  <Card key={phrase.id}>
-                                    <CardHeader>
-                                      <CardTitle>{phrase.english}</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                      <div className="space-y-2">
-                                        <div>
-                                          <p className="font-medium">In local language:</p>
-                                          <p className="text-lg">{phrase.local}</p>
-                                        </div>
-                                        {phrase.pronunciation && (
-                                          <div>
-                                            <p className="font-medium">Pronunciation:</p>
-                                            <p className="italic">{phrase.pronunciation}</p>
-                                          </div>
-                                        )}
-                                      </div>
-                                    </CardContent>
-                                  </Card>
-                                ))}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
                     )}
-                  </div>
-                </CardContent>
-              </Card>
+                </div>
+            );
+        };
+
+        const SelectItem = ({ children, value, onSelect }) => (
+            <div 
+                className="px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer"
+                onClick={() => onSelect(value)}
+            >
+                {children}
             </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+        );
+
+        const Badge = ({ children, variant = "default" }) => {
+            const variants = {
+                default: "bg-blue-100 text-blue-800",
+                outline: "border border-gray-300 bg-transparent",
+                secondary: "bg-gray-100 text-gray-800"
+            };
+            return (
+                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${variants[variant]}`}>
+                    {children}
+                </span>
+            );
+        };
+
+        function SmartTravelCompanion() {
+            const [activeTab, setActiveTab] = useState('itinerary');
+            const [itineraries, setItineraries] = useState([]);
+            const [expenses, setExpenses] = useState([]);
+            const [connections, setConnections] = useState([]);
+            const [phrases, setPhrases] = useState([]);
+            const [budget, setBudget] = useState(0);
+            const [baseCurrency, setBaseCurrency] = useState('INR');
+
+            const [newItinerary, setNewItinerary] = useState({
+                destination: '',
+                startDate: '',
+                endDate: '',
+                activities: '',
+                travelMode: 'train'
+            });
+
+            const [newExpense, setNewExpense] = useState({
+                amount: 0,
+                currency: 'INR',
+                category: 'food',
+                description: '',
+                date: new Date().toISOString().split('T')[0],
+                paymentMethod: 'upi'
+            });
+
+            const currencyRates = {
+                USD: 83.5,
+                EUR: 89.2,
+                GBP: 105.4,
+                INR: 1,
+                AED: 22.7,
+                SGD: 61.8
+            };
+
+            const formatCurrency = (amount, currency) => {
+                return new Intl.NumberFormat('en-IN', {
+                    style: 'currency',
+                    currency: currency,
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                }).format(amount);
+            };
+
+            const convertCurrency = (amount, from, to) => {
+                return amount * (currencyRates[to] || 1) / (currencyRates[from] || 1);
+            };
+
+            const handleItinerarySubmit = (e) => {
+                e.preventDefault();
+                const itineraryToAdd = {
+                    ...newItinerary,
+                    id: Date.now().toString(),
+                    status: 'planned'
+                };
+                setItineraries([...itineraries, itineraryToAdd]);
+                setNewItinerary({
+                    destination: '',
+                    startDate: '',
+                    endDate: '',
+                    activities: '',
+                    travelMode: 'train'
+                });
+            };
+
+            const handleExpenseSubmit = (e) => {
+                e.preventDefault();
+                setExpenses([...expenses, {
+                    ...newExpense,
+                    id: Date.now().toString(),
+                    convertedAmount: convertCurrency(newExpense.amount, newExpense.currency, baseCurrency)
+                }]);
+                setNewExpense({
+                    amount: 0,
+                    currency: 'INR',
+                    category: 'food',
+                    description: '',
+                    date: new Date().toISOString().split('T')[0],
+                    paymentMethod: 'upi'
+                });
+            };
+
+            const totalExpenses = expenses.reduce((sum, expense) => sum + expense.convertedAmount, 0);
+            const remainingBudget = budget - totalExpenses;
+
+            useEffect(() => {
+                // Load sample data
+                setPhrases([
+                    {
+                        id: '1',
+                        english: 'Hello',
+                        local: 'नमस्ते',
+                        pronunciation: 'na-mas-tay',
+                        category: 'greetings'
+                    },
+                    {
+                        id: '2',
+                        english: 'How much does this cost?',
+                        local: 'यह कितने का है?',
+                        pronunciation: 'yah kit-nay ka hai?',
+                        category: 'food'
+                    }
+                ]);
+
+                setConnections([
+                    {
+                        id: '1',
+                        name: 'Rajesh Kumar',
+                        location: 'Delhi',
+                        contact: '+91 98765 43210',
+                        type: 'guide',
+                        notes: 'Speaks English and Hindi'
+                    }
+                ]);
+            }, []);
+
+            return (
+                <div className="min-h-screen bg-gray-50 p-4">
+                    <Card className="max-w-6xl mx-auto">
+                        <CardHeader>
+                            <CardTitle className="text-2xl flex items-center gap-2">
+                                <Icon name="globe" className="h-6 w-6" />
+                                Smart Travel Companion
+                            </CardTitle>
+                            <CardDescription>Your all-in-one intelligent travel assistant</CardDescription>
+                            
+                            <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
+                                <Button 
+                                    variant={activeTab === 'itinerary' ? 'default' : 'outline'} 
+                                    onClick={() => setActiveTab('itinerary')}
+                                    className="flex items-center gap-2"
+                                >
+                                    <Icon name="home" />
+                                    Itinerary
+                                </Button>
+                                <Button 
+                                    variant={activeTab === 'budget' ? 'default' : 'outline'} 
+                                    onClick={() => setActiveTab('budget')}
+                                    className="flex items-center gap-2"
+                                >
+                                    <Icon name="dollar-sign" />
+                                    Smart Budget
+                                </Button>
+                                <Button 
+                                    variant={activeTab === 'connections' ? 'default' : 'outline'} 
+                                    onClick={() => setActiveTab('connections')}
+                                    className="flex items-center gap-2"
+                                >
+                                    <Icon name="users" />
+                                    Local Connections
+                                </Button>
+                                <Button 
+                                    variant={activeTab === 'language' ? 'default' : 'outline'} 
+                                    onClick={() => setActiveTab('language')}
+                                    className="flex items-center gap-2"
+                                >
+                                    <Icon name="languages" />
+                                    Language Helper
+                                </Button>
+                            </div>
+                        </CardHeader>
+
+                        <CardContent>
+                            {activeTab === 'itinerary' && (
+                                <div className="space-y-6">
+                                    <h2 className="text-xl font-bold">Travel Plans</h2>
+                                    
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle>Add New Itinerary</CardTitle>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <form onSubmit={handleItinerarySubmit} className="space-y-4">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div className="space-y-2">
+                                                        <Label htmlFor="destination">Destination</Label>
+                                                        <Input
+                                                            id="destination"
+                                                            value={newItinerary.destination}
+                                                            onChange={(e) => setNewItinerary({...newItinerary, destination: e.target.value})}
+                                                            required
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label htmlFor="startDate">Start Date</Label>
+                                                        <Input
+                                                            id="startDate"
+                                                            type="date"
+                                                            value={newItinerary.startDate}
+                                                            onChange={(e) => setNewItinerary({...newItinerary, startDate: e.target.value})}
+                                                            required
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label htmlFor="endDate">End Date</Label>
+                                                        <Input
+                                                            id="endDate"
+                                                            type="date"
+                                                            value={newItinerary.endDate}
+                                                            onChange={(e) => setNewItinerary({...newItinerary, endDate: e.target.value})}
+                                                            required
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label>Travel Mode</Label>
+                                                        <Select
+                                                            value={newItinerary.travelMode}
+                                                            onValueChange={(value) => setNewItinerary({...newItinerary, travelMode: value})}
+                                                        >
+                                                            <SelectItem value="train">Train</SelectItem>
+                                                            <SelectItem value="bus">Bus</SelectItem>
+                                                            <SelectItem value="flight">Flight</SelectItem>
+                                                            <SelectItem value="self-drive">Self Drive</SelectItem>
+                                                        </Select>
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="activities">Activities</Label>
+                                                    <Textarea
+                                                        id="activities"
+                                                        value={newItinerary.activities}
+                                                        onChange={(e) => setNewItinerary({...newItinerary, activities: e.target.value})}
+                                                        rows={3}
+                                                        placeholder="List your planned activities..."
+                                                    />
+                                                </div>
+                                                <Button type="submit">Add Itinerary</Button>
+                                            </form>
+                                        </CardContent>
+                                    </Card>
+
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle>Your Itineraries</CardTitle>
+                                        </CardHeader>
+                                        <CardContent>
+                                            {itineraries.length === 0 ? (
+                                                <p className="text-gray-500">No itineraries added yet.</p>
+                                            ) : (
+                                                <div className="space-y-4">
+                                                    {itineraries.map((itinerary) => (
+                                                        <Card key={itinerary.id}>
+                                                            <CardHeader>
+                                                                <CardTitle>{itinerary.destination}</CardTitle>
+                                                                <CardDescription>
+                                                                    {new Date(itinerary.startDate).toLocaleDateString()} to {new Date(itinerary.endDate).toLocaleDateString()} • {itinerary.travelMode}
+                                                                </CardDescription>
+                                                            </CardHeader>
+                                                            <CardContent>
+                                                                <p className="whitespace-pre-line">{itinerary.activities}</p>
+                                                            </CardContent>
+                                                        </Card>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </CardContent>
+                                    </Card>
+                                </div>
+                            )}
+
+                            {activeTab === 'budget' && (
+                                <div className="space-y-6">
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle>Budget Overview</CardTitle>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                                <div className="p-4 bg-blue-50 rounded-lg">
+                                                    <h3 className="font-semibold text-blue-800">Total Budget</h3>
+                                                    <p className="text-2xl font-bold">{formatCurrency(budget, baseCurrency)}</p>
+                                                    <Input
+                                                        type="number"
+                                                        placeholder="Set budget"
+                                                        value={budget || ''}
+                                                        onChange={(e) => setBudget(Number(e.target.value))}
+                                                        className="mt-2"
+                                                    />
+                                                </div>
+                                                <div className="p-4 bg-red-50 rounded-lg">
+                                                    <h3 className="font-semibold text-red-800">Total Expenses</h3>
+                                                    <p className="text-2xl font-bold">{formatCurrency(totalExpenses, baseCurrency)}</p>
+                                                </div>
+                                                <div className={`p-4 rounded-lg ${remainingBudget >= 0 ? 'bg-green-50' : 'bg-yellow-50'}`}>
+                                                    <h3 className={`font-semibold ${remainingBudget >= 0 ? 'text-green-800' : 'text-yellow-800'}`}>
+                                                        Remaining Budget
+                                                    </h3>
+                                                    <p className="text-2xl font-bold">{formatCurrency(remainingBudget, baseCurrency)}</p>
+                                                </div>
+                                            </div>
+
+                                            <Card>
+                                                <CardHeader>
+                                                    <CardTitle>Add New Expense</CardTitle>
+                                                </CardHeader>
+                                                <CardContent>
+                                                    <form onSubmit={handleExpenseSubmit} className="space-y-4">
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            <div className="space-y-2">
+                                                                <Label htmlFor="amount">Amount</Label>
+                                                                <Input
+                                                                    id="amount"
+                                                                    type="number"
+                                                                    value={newExpense.amount || ''}
+                                                                    onChange={(e) => setNewExpense({...newExpense, amount: Number(e.target.value)})}
+                                                                    min="0"
+                                                                    step="10"
+                                                                    required
+                                                                />
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label htmlFor="category">Category</Label>
+                                                                <Select
+                                                                    value={newExpense.category}
+                                                                    onValueChange={(value) => setNewExpense({...newExpense, category: value})}
+                                                                >
+                                                                    <SelectItem value="food">Food</SelectItem>
+                                                                    <SelectItem value="transport">Transport</SelectItem>
+                                                                    <SelectItem value="accommodation">Accommodation</SelectItem>
+                                                                    <SelectItem value="shopping">Shopping</SelectItem>
+                                                                    <SelectItem value="sightseeing">Sightseeing</SelectItem>
+                                                                    <SelectItem value="other">Other</SelectItem>
+                                                                </Select>
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label htmlFor="description">Description</Label>
+                                                                <Input
+                                                                    id="description"
+                                                                    value={newExpense.description}
+                                                                    onChange={(e) => setNewExpense({...newExpense, description: e.target.value})}
+                                                                />
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label htmlFor="date">Date</Label>
+                                                                <Input
+                                                                    id="date"
+                                                                    type="date"
+                                                                    value={newExpense.date}
+                                                                    onChange={(e) => setNewExpense({...newExpense, date: e.target.value})}
+                                                                    required
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <Button type="submit">Add Expense</Button>
+                                                    </form>
+                                                </CardContent>
+                                            </Card>
+                                        </CardContent>
+                                    </Card>
+
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle>Expense History</CardTitle>
+                                        </CardHeader>
+                                        <CardContent>
+                                            {expenses.length === 0 ? (
+                                                <p className="text-gray-500">No expenses recorded yet.</p>
+                                            ) : (
+                                                <div className="space-y-4">
+                                                    {expenses.map((expense) => (
+                                                        <Card key={expense.id}>
+                                                            <CardHeader>
+                                                                <CardTitle>{formatCurrency(expense.convertedAmount, baseCurrency)}</CardTitle>
+                                                                <CardDescription>
+                                                                    {expense.category} • {expense.date} • {expense.paymentMethod}
+                                                                </CardDescription>
+                                                            </CardHeader>
+                                                            {expense.description && (
+                                                                <CardContent>
+                                                                    <p>{expense.description}</p>
+                                                                </CardContent>
+                                                            )}
+                                                        </Card>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </CardContent>
+                                    </Card>
+                                </div>
+                            )}
+
+                            {activeTab === 'connections' && (
+                                <div className="space-y-6">
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle>Your Connections</CardTitle>
+                                        </CardHeader>
+                                        <CardContent>
+                                            {connections.length === 0 ? (
+                                                <p className="text-gray-500">No connections added yet.</p>
+                                            ) : (
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    {connections.map((connection) => (
+                                                        <Card key={connection.id}>
+                                                            <CardHeader>
+                                                                <div className="flex justify-between items-start">
+                                                                    <div>
+                                                                        <CardTitle>{connection.name}</CardTitle>
+                                                                        <CardDescription className="capitalize">
+                                                                            {connection.type} • {connection.location}
+                                                                        </CardDescription>
+                                                                    </div>
+                                                                    <Badge variant="outline">{connection.type}</Badge>
+                                                                </div>
+                                                            </CardHeader>
+                                                            <CardContent>
+                                                                <div className="space-y-2">
+                                                                    <div>
+                                                                        <p className="font-medium">Contact:</p>
+                                                                        <p>{connection.contact}</p>
+                                                                    </div>
+                                                                    {connection.notes && (
+                                                                        <div>
+                                                                            <p className="font-medium">Notes:</p>
+                                                                            <p>{connection.notes}</p>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </CardContent>
+                                                        </Card>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </CardContent>
+                                    </Card>
+                                </div>
+                            )}
+
+                            {activeTab === 'language' && (
+                                <div className="space-y-6">
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle>Your Phrasebook</CardTitle>
+                                        </CardHeader>
+                                        <CardContent>
+                                            {phrases.length === 0 ? (
+                                                <p className="text-gray-500">No phrases added yet.</p>
+                                            ) : (
+                                                <div className="space-y-4">
+                                                    {['greetings', 'directions', 'food', 'emergency'].map((category) => {
+                                                        const categoryPhrases = phrases.filter(p => p.category === category);
+                                                        if (categoryPhrases.length === 0) return null;
+                                                        
+                                                        return (
+                                                            <div key={category}>
+                                                                <h3 className="font-semibold capitalize mb-2">{category}</h3>
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                    {categoryPhrases.map((phrase) => (
+                                                                        <Card key={phrase.id}>
+                                                                            <CardHeader>
+                                                                                <CardTitle>{phrase.english}</CardTitle>
+                                                                            </CardHeader>
+                                                                            <CardContent>
