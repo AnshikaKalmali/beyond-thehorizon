@@ -4,600 +4,817 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Travel Companion</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.js"></script>
     <style>
-        .lucide { width: 1em; height: 1em; display: inline-block; vertical-align: middle; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f9fafb;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header-title h1 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #111827;
+        }
+        
+        .header-subtitle {
+            color: #6b7280;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+        
+        .tab-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        
+        .tab-button.active {
+            background-color: #2563eb;
+            color: white;
+        }
+        
+        .tab-button:not(.active) {
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+        
+        .tab-button:not(.active):hover {
+            background-color: #e5e7eb;
+        }
+        
+        .content {
+            padding: 1.5rem;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-section {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-section-header {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 600;
+        }
+        
+        .form-section-content {
+            padding: 1rem;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .form-grid.md-2 {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .form-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .form-input, .form-select, .form-textarea {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .radio-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+        
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: #2563eb;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+        
+        .btn-secondary {
+            background-color: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e5e7eb;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+        
+        .stat-card.blue {
+            background-color: #eff6ff;
+        }
+        
+        .stat-card.red {
+            background-color: #fef2f2;
+        }
+        
+        .stat-card.green {
+            background-color: #f0fdf4;
+        }
+        
+        .stat-card.yellow {
+            background-color: #fffbeb;
+        }
+        
+        .stat-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .item-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+        }
+        
+        .item-card.rescheduled {
+            border-color: #fbbf24;
+            background-color: #fffbeb;
+        }
+        
+        .item-header {
+            display: flex;
+            justify-content: between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+        
+        .item-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .item-subtitle {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            background-color: #fbbf24;
+            color: #92400e;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .currency-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 0.5rem;
+        }
+        
+        .currency-card {
+            padding: 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+        
+        .currency-code {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .currency-rate {
+            font-size: 0.875rem;
+            font-weight: bold;
+        }
+        
+        .map-placeholder {
+            background-color: #f3f4f6;
+            height: 16rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .alert.success {
+            background-color: #f0fdf4;
+            color: #166534;
+        }
+        
+        .alert.warning {
+            background-color: #fffbeb;
+            color: #92400e;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        @media (max-width: 768px) {
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .form-grid.md-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
-    <div id="root"></div>
-
-    <script type="text/babel">
-        const { useState, useEffect } = React;
-
-        // Lucide Icons (simplified)
-        const Icon = ({ name, className = "h-4 w-4" }) => (
-            <svg className={`lucide ${className}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {name === 'home' && <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/>}
-                {name === 'map' && <polygon points="1,6 1,22 8,18 16,22 23,18 23,2 16,6 8,2"/>}
-                {name === 'dollar-sign' && <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>}
-                {name === 'users' && <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>}
-                {name === 'languages' && <path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/>}
-                {name === 'globe' && <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>}
-                {name === 'train' && <rect x="1" y="3" width="15" height="13" rx="2"/><line x1="16" y1="8" x2="16" y2="16"/><line x1="1" y1="8" x2="15" y2="8"/><circle cx="5.5" cy="13.5" r="0.5"/><circle cx="10.5" cy="13.5" r="0.5"/>}
-                {name === 'bus' && <path d="M8 6v6"/><path d="M15 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2v-.2H22V9.5c0-.3-.1-.6-.2-.9L20.6 5H3.4L2.2 8.6c-.1.3-.2.6-.2.9V14c0 .4.1.8.2 1.2.3 1.1.8 2.8.8 2.8h3"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>}
-                {name === 'calendar-clock' && <path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h3.5"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h5"/><circle cx="16" cy="16" r="6"/><path d="M16 14v2l1 1"/>}
-                {/* Add more icons as needed */}
-            </svg>
-        );
-
-        // UI Components
-        const Button = ({ children, onClick, variant = "default", size = "default", className = "", type = "button", ...props }) => {
-            const baseClasses = "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background";
-            const variants = {
-                default: "bg-blue-600 text-white hover:bg-blue-700",
-                outline: "border border-gray-300 bg-transparent hover:bg-gray-100",
-                ghost: "hover:bg-gray-100"
-            };
-            const sizes = {
-                default: "h-10 py-2 px-4",
-                sm: "h-9 px-3 rounded-md"
-            };
+    <div class="container">
+        <div class="header">
+            <div class="header-title">
+                <i data-lucide="globe" style="color: #2563eb;"></i>
+                <h1>Smart Travel Companion</h1>
+            </div>
+            <p class="header-subtitle">Your all-in-one intelligent travel assistant</p>
             
-            return (
-                <button 
-                    className={`${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`}
-                    onClick={onClick}
-                    type={type}
-                    {...props}
-                >
-                    {children}
+            <div class="tabs">
+                <button class="tab-button active" data-tab="itinerary">
+                    <i data-lucide="home"></i>
+                    Itinerary
                 </button>
-            );
-        };
-
-        const Card = ({ children, className = "" }) => (
-            <div className={`rounded-lg border bg-white shadow-sm ${className}`}>
-                {children}
+                <button class="tab-button" data-tab="navigation">
+                    <i data-lucide="map"></i>
+                    Navigation
+                </button>
+                <button class="tab-button" data-tab="budget">
+                    <i data-lucide="dollar-sign"></i>
+                    Smart Budget
+                </button>
+                <button class="tab-button" data-tab="connections">
+                    <i data-lucide="users"></i>
+                    Local Connections
+                </button>
+                <button class="tab-button" data-tab="language">
+                    <i data-lucide="languages"></i>
+                    Language Helper
+                </button>
             </div>
-        );
+        </div>
 
-        const CardHeader = ({ children }) => (
-            <div className="flex flex-col space-y-1.5 p-6 pb-4">{children}</div>
-        );
-
-        const CardTitle = ({ children, className = "" }) => (
-            <h3 className={`text-lg font-semibold leading-none tracking-tight ${className}`}>{children}</h3>
-        );
-
-        const CardDescription = ({ children }) => (
-            <p className="text-sm text-gray-600">{children}</p>
-        );
-
-        const CardContent = ({ children }) => (
-            <div className="p-6 pt-0">{children}</div>
-        );
-
-        const Input = ({ className = "", ...props }) => (
-            <input className={`flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 ${className}`} {...props} />
-        );
-
-        const Label = ({ children, htmlFor, className = "" }) => (
-            <label htmlFor={htmlFor} className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${className}`}>
-                {children}
-            </label>
-        );
-
-        const Textarea = ({ className = "", ...props }) => (
-            <textarea className={`flex min-h-[80px] w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 ${className}`} {...props} />
-        );
-
-        const Select = ({ children, value, onValueChange }) => {
-            const [isOpen, setIsOpen] = useState(false);
-            const [selectedValue, setSelectedValue] = useState(value || '');
-
-            const handleSelect = (newValue) => {
-                setSelectedValue(newValue);
-                onValueChange?.(newValue);
-                setIsOpen(false);
-            };
-
-            return (
-                <div className="relative">
-                    <button
-                        type="button"
-                        className="flex h-10 w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        onClick={() => setIsOpen(!isOpen)}
-                    >
-                        <span>{selectedValue || 'Select...'}</span>
-                        <Icon name="chevron-down" className="h-4 w-4" />
-                    </button>
-                    {isOpen && (
-                        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
-                            {React.Children.map(children, (child) => 
-                                React.cloneElement(child, { onSelect: handleSelect })
-                            )}
-                        </div>
-                    )}
+        <div class="content">
+            <!-- Itinerary Tab -->
+            <div id="itinerary" class="tab-content active">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 style="font-size: 1.25rem; font-weight: bold;">Travel Plans</h2>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="auto-reschedule" checked>
+                        <label for="auto-reschedule" style="font-size: 0.875rem;">Auto-Reschedule Conflicts</label>
+                    </div>
                 </div>
-            );
-        };
 
-        const SelectItem = ({ children, value, onSelect }) => (
-            <div 
-                className="px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer"
-                onClick={() => onSelect(value)}
-            >
-                {children}
+                <div class="form-section">
+                    <div class="form-section-header">Add New Itinerary</div>
+                    <div class="form-section-content">
+                        <form id="itinerary-form">
+                            <div class="form-grid md-2">
+                                <div class="form-group">
+                                    <label class="form-label">Destination</label>
+                                    <input type="text" class="form-input" name="destination" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Travel Mode</label>
+                                    <div class="radio-group">
+                                        <div class="radio-item">
+                                            <input type="radio" name="travelMode" value="train" id="train" checked>
+                                            <label for="train"><i data-lucide="train"></i> Train</label>
+                                        </div>
+                                        <div class="radio-item">
+                                            <input type="radio" name="travelMode" value="bus" id="bus">
+                                            <label for="bus"><i data-lucide="bus"></i> Bus</label>
+                                        </div>
+                                        <div class="radio-item">
+                                            <input type="radio" name="travelMode" value="flight" id="flight">
+                                            <label for="flight"><i data-lucide="plane"></i> Flight</label>
+                                        </div>
+                                        <div class="radio-item">
+                                            <input type="radio" name="travelMode" value="self-drive" id="self-drive">
+                                            <label for="self-drive"><i data-lucide="car"></i> Self Drive</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Start Date</label>
+                                    <input type="date" class="form-input" name="startDate" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">End Date</label>
+                                    <input type="date" class="form-input" name="endDate" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Activities</label>
+                                <textarea class="form-textarea" name="activities" placeholder="List your planned activities..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Itinerary</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-header">Your Itineraries</div>
+                    <div class="form-section-content">
+                        <div id="itinerary-list" class="item-list">
+                            <p style="color: #6b7280;">No itineraries added yet.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-        );
 
-        const Badge = ({ children, variant = "default" }) => {
-            const variants = {
-                default: "bg-blue-100 text-blue-800",
-                outline: "border border-gray-300 bg-transparent",
-                secondary: "bg-gray-100 text-gray-800"
-            };
-            return (
-                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${variants[variant]}`}>
-                    {children}
-                </span>
-            );
-        };
+            <!-- Navigation Tab -->
+            <div id="navigation" class="tab-content">
+                <div class="form-section">
+                    <div class="form-section-header">Navigation & Maps</div>
+                    <div class="form-section-content">
+                        <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                            <input type="text" class="form-input" placeholder="Enter destination..." style="flex: 1;" id="destination-input">
+                            <button class="btn btn-primary" onclick="getCurrentLocation()">Get Current Location</button>
+                        </div>
+                        <div id="location-display" class="alert success hidden">
+                            Current Location: <span id="coordinates"></span>
+                        </div>
+                        <div class="map-placeholder">
+                            <p>Map integration would go here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        function SmartTravelCompanion() {
-            const [activeTab, setActiveTab] = useState('itinerary');
-            const [itineraries, setItineraries] = useState([]);
-            const [expenses, setExpenses] = useState([]);
-            const [connections, setConnections] = useState([]);
-            const [phrases, setPhrases] = useState([]);
-            const [budget, setBudget] = useState(0);
-            const [baseCurrency, setBaseCurrency] = useState('INR');
+            <!-- Budget Tab -->
+            <div id="budget" class="tab-content">
+                <div class="form-section">
+                    <div class="form-section-header">Budget Overview</div>
+                    <div class="form-section-content">
+                        <div class="stats-grid">
+                            <div class="stat-card blue">
+                                <div class="stat-title">Total Budget</div>
+                                <div class="stat-value" id="total-budget">₹50,000</div>
+                                <input type="number" class="form-input" value="50000" id="budget-input" style="margin-top: 0.5rem;">
+                            </div>
+                            <div class="stat-card red">
+                                <div class="stat-title">Total Expenses</div>
+                                <div class="stat-value" id="total-expenses">₹0</div>
+                            </div>
+                            <div class="stat-card green" id="remaining-card">
+                                <div class="stat-title">Remaining Budget</div>
+                                <div class="stat-value" id="remaining-budget">₹50,000</div>
+                            </div>
+                        </div>
 
-            const [newItinerary, setNewItinerary] = useState({
-                destination: '',
-                startDate: '',
-                endDate: '',
-                activities: '',
-                travelMode: 'train'
-            });
+                        <div class="form-grid md-2">
+                            <div class="form-section">
+                                <div class="form-section-header">Add New Expense</div>
+                                <div class="form-section-content">
+                                    <form id="expense-form">
+                                        <div class="form-group">
+                                            <label class="form-label">Amount</label>
+                                            <div style="display: flex; gap: 0.5rem;">
+                                                <input type="number" class="form-input" name="amount" style="flex: 1;" required min="0" step="10">
+                                                <select class="form-select" name="currency" style="width: 80px;">
+                                                    <option value="INR">INR</option>
+                                                    <option value="USD">USD</option>
+                                                    <option value="EUR">EUR</option>
+                                                    <option value="GBP">GBP</option>
+                                                    <option value="AED">AED</option>
+                                                    <option value="SGD">SGD</option>
+                                                </select>
+                                            </div>
+                                            <div id="conversion-display" style="font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem;"></div>
+                                        </div>
+                                        <div class="form-grid md-2">
+                                            <div class="form-group">
+                                                <label class="form-label">Category</label>
+                                                <select class="form-select" name="category">
+                                                    <option value="food">Food</option>
+                                                    <option value="transport">Transport</option>
+                                                    <option value="accommodation">Accommodation</option>
+                                                    <option value="shopping">Shopping</option>
+                                                    <option value="sightseeing">Sightseeing</option>
+                                                    <option value="other">Other</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label">Date</label>
+                                                <input type="date" class="form-input" name="date" required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Payment Method</label>
+                                            <div class="radio-group">
+                                                <div class="radio-item">
+                                                    <input type="radio" name="paymentMethod" value="cash" id="cash">
+                                                    <label for="cash">Cash</label>
+                                                </div>
+                                                <div class="radio-item">
+                                                    <input type="radio" name="paymentMethod" value="upi" id="upi" checked>
+                                                    <label for="upi">UPI</label>
+                                                </div>
+                                                <div class="radio-item">
+                                                    <input type="radio" name="paymentMethod" value="card" id="card">
+                                                    <label for="card">Card</label>
+                                                </div>
+                                                <div class="radio-item">
+                                                    <input type="radio" name="paymentMethod" value="netbanking" id="netbanking">
+                                                    <label for="netbanking">Net Banking</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Description</label>
+                                            <input type="text" class="form-input" name="description">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Add Expense</button>
+                                    </form>
+                                </div>
+                            </div>
 
-            const [newExpense, setNewExpense] = useState({
-                amount: 0,
-                currency: 'INR',
-                category: 'food',
-                description: '',
-                date: new Date().toISOString().split('T')[0],
-                paymentMethod: 'upi'
-            });
+                            <div class="form-section">
+                                <div class="form-section-header">Currency Converter</div>
+                                <div class="form-section-content">
+                                    <div class="form-group">
+                                        <label class="form-label">Base Currency</label>
+                                        <select class="form-select" id="base-currency">
+                                            <option value="INR">INR</option>
+                                            <option value="USD">USD</option>
+                                            <option value="EUR">EUR</option>
+                                            <option value="GBP">GBP</option>
+                                            <option value="AED">AED</option>
+                                            <option value="SGD">SGD</option>
+                                        </select>
+                                    </div>
+                                    <div class="currency-grid" id="currency-rates">
+                                        <!-- Currency rates will be populated here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-            const currencyRates = {
+                <div class="form-section">
+                    <div class="form-section-header">Expense History</div>
+                    <div class="form-section-content">
+                        <div id="expense-list" class="item-list">
+                            <p style="color: #6b7280;">No expenses recorded yet.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Connections Tab -->
+            <div id="connections" class="tab-content">
+                <div class="form-section">
+                    <div class="form-section-header">Add New Connection</div>
+                    <div class="form-section-content">
+                        <form id="connection-form">
+                            <div class="form-grid md-2">
+                                <div class="form-group">
+                                    <label class="form-label">Name</label>
+                                    <input type="text" class="form-input" name="name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Location</label>
+                                    <input type="text" class="form-input" name="location" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Contact</label>
+                                    <input type="text" class="form-input" name="contact" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Type</label>
+                                    <select class="form-select" name="type">
+                                        <option value="guide">Guide</option>
+                                        <option value="driver">Driver</option>
+                                        <option value="host">Host</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Notes</label>
+                                <textarea class="form-textarea" name="notes"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Connection</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-header">Your Connections</div>
+                    <div class="form-section-content">
+                        <div id="connection-list" class="item-list">
+                            <!-- Sample connections will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Language Tab -->
+            <div id="language" class="tab-content">
+                <div class="form-section">
+                    <div class="form-section-header">Add New Phrase</div>
+                    <div class="form-section-content">
+                        <form id="phrase-form">
+                            <div class="form-grid md-2">
+                                <div class="form-group">
+                                    <label class="form-label">English</label>
+                                    <input type="text" class="form-input" name="english" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Local Language</label>
+                                    <input type="text" class="form-input" name="local" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Pronunciation</label>
+                                    <input type="text" class="form-input" name="pronunciation" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Category</label>
+                                    <select class="form-select" name="category">
+                                        <option value="greetings">Greetings</option>
+                                        <option value="directions">Directions</option>
+                                        <option value="food">Food</option>
+                                        <option value="emergency">Emergency</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Phrase</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-header">Phrase Book</div>
+                    <div class="form-section-content">
+                        <div id="phrase-list" class="item-list">
+                            <!-- Sample phrases will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Global state
+        let state = {
+            activeTab: 'itinerary',
+            itineraries: [],
+            expenses: [],
+            connections: [],
+            phrases: [],
+            budget: 50000,
+            baseCurrency: 'INR',
+            currencyRates: {
                 USD: 83.5,
                 EUR: 89.2,
                 GBP: 105.4,
                 INR: 1,
                 AED: 22.7,
                 SGD: 61.8
-            };
+            },
+            autoReschedule: true
+        };
 
-            const formatCurrency = (amount, currency) => {
-                return new Intl.NumberFormat('en-IN', {
-                    style: 'currency',
-                    currency: currency,
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0
-                }).format(amount);
-            };
+        // Utility functions
+        function formatCurrency(amount, currency) {
+            return new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: currency,
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
 
-            const convertCurrency = (amount, from, to) => {
-                return amount * (currencyRates[to] || 1) / (currencyRates[from] || 1);
-            };
+        function convertCurrency(amount, from, to) {
+            return amount * (state.currencyRates[to] || 1) / (state.currencyRates[from] || 1);
+        }
 
-            const handleItinerarySubmit = (e) => {
-                e.preventDefault();
-                const itineraryToAdd = {
-                    ...newItinerary,
-                    id: Date.now().toString(),
-                    status: 'planned'
-                };
-                setItineraries([...itineraries, itineraryToAdd]);
-                setNewItinerary({
-                    destination: '',
-                    startDate: '',
-                    endDate: '',
-                    activities: '',
-                    travelMode: 'train'
+        function generateId() {
+            return Date.now().toString();
+        }
+
+        // Tab switching
+        function initTabs() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetTab = button.dataset.tab;
+                    
+                    // Update active states
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    button.classList.add('active');
+                    document.getElementById(targetTab).classList.add('active');
+                    
+                    state.activeTab = targetTab;
                 });
+            });
+        }
+
+        // Itinerary functions
+        function initItinerary() {
+            const form = document.getElementById('itinerary-form');
+            const autoRescheduleCheckbox = document.getElementById('auto-reschedule');
+            
+            form.addEventListener('submit', handleItinerarySubmit);
+            autoRescheduleCheckbox.addEventListener('change', (e) => {
+                state.autoReschedule = e.target.checked;
+            });
+        }
+
+        function handleItinerarySubmit(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            const newItinerary = {
+                id: generateId(),
+                destination: formData.get('destination'),
+                startDate: formData.get('startDate'),
+                endDate: formData.get('endDate'),
+                activities: formData.get('activities'),
+                travelMode: formData.get('travelMode'),
+                status: 'planned'
             };
 
-            const handleExpenseSubmit = (e) => {
-                e.preventDefault();
-                setExpenses([...expenses, {
-                    ...newExpense,
-                    id: Date.now().toString(),
-                    convertedAmount: convertCurrency(newExpense.amount, newExpense.currency, baseCurrency)
-                }]);
-                setNewExpense({
-                    amount: 0,
-                    currency: 'INR',
-                    category: 'food',
-                    description: '',
-                    date: new Date().toISOString().split('T')[0],
-                    paymentMethod: 'upi'
+            if (state.autoReschedule) {
+                checkAndReschedule(newItinerary);
+            }
+
+            state.itineraries.push(newItinerary);
+            renderItineraries();
+            e.target.reset();
+        }
+
+        function checkAndReschedule(newItinerary) {
+            const conflicts = state.itineraries.filter(item => 
+                item.id !== newItinerary.id && 
+                item.status === 'planned' &&
+                ((new Date(newItinerary.startDate) <= new Date(item.endDate) && 
+                  new Date(newItinerary.endDate) >= new Date(item.startDate))
+                )
+            );
+
+            if (conflicts.length > 0) {
+                conflicts.forEach(conflict => {
+                    const item = state.itineraries.find(i => i.id === conflict.id);
+                    if (item) {
+                        const newStartDate = new Date(item.startDate);
+                        newStartDate.setDate(newStartDate.getDate() + 1);
+                        const newEndDate = new Date(item.endDate);
+                        newEndDate.setDate(newEndDate.getDate() + 1);
+                        
+                        item.startDate = newStartDate.toISOString().split('T')[0];
+                        item.endDate = newEndDate.toISOString().split('T')[0];
+                        item.status = 'rescheduled';
+                    }
                 });
-            };
 
-            const totalExpenses = expenses.reduce((sum, expense) => sum + expense.convertedAmount, 0);
-            const remainingBudget = budget - totalExpenses;
+                alert(`${conflicts.length} itinerary(s) automatically rescheduled to avoid conflicts`);
+            }
+        }
 
-            useEffect(() => {
-                // Load sample data
-                setPhrases([
-                    {
-                        id: '1',
-                        english: 'Hello',
-                        local: 'नमस्ते',
-                        pronunciation: 'na-mas-tay',
-                        category: 'greetings'
-                    },
-                    {
-                        id: '2',
-                        english: 'How much does this cost?',
-                        local: 'यह कितने का है?',
-                        pronunciation: 'yah kit-nay ka hai?',
-                        category: 'food'
-                    }
-                ]);
+        function renderItineraries() {
+            const container = document.getElementById('itinerary-list');
+            
+            if (state.itineraries.length === 0) {
+                container.innerHTML = '<p style="color: #6b7280;">No itineraries added yet.</p>';
+                return;
+            }
 
-                setConnections([
-                    {
-                        id: '1',
-                        name: 'Rajesh Kumar',
-                        location: 'Delhi',
-                        contact: '+91 98765 43210',
-                        type: 'guide',
-                        notes: 'Speaks English and Hindi'
-                    }
-                ]);
-            }, []);
-
-            return (
-                <div className="min-h-screen bg-gray-50 p-4">
-                    <Card className="max-w-6xl mx-auto">
-                        <CardHeader>
-                            <CardTitle className="text-2xl flex items-center gap-2">
-                                <Icon name="globe" className="h-6 w-6" />
-                                Smart Travel Companion
-                            </CardTitle>
-                            <CardDescription>Your all-in-one intelligent travel assistant</CardDescription>
-                            
-                            <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
-                                <Button 
-                                    variant={activeTab === 'itinerary' ? 'default' : 'outline'} 
-                                    onClick={() => setActiveTab('itinerary')}
-                                    className="flex items-center gap-2"
-                                >
-                                    <Icon name="home" />
-                                    Itinerary
-                                </Button>
-                                <Button 
-                                    variant={activeTab === 'budget' ? 'default' : 'outline'} 
-                                    onClick={() => setActiveTab('budget')}
-                                    className="flex items-center gap-2"
-                                >
-                                    <Icon name="dollar-sign" />
-                                    Smart Budget
-                                </Button>
-                                <Button 
-                                    variant={activeTab === 'connections' ? 'default' : 'outline'} 
-                                    onClick={() => setActiveTab('connections')}
-                                    className="flex items-center gap-2"
-                                >
-                                    <Icon name="users" />
-                                    Local Connections
-                                </Button>
-                                <Button 
-                                    variant={activeTab === 'language' ? 'default' : 'outline'} 
-                                    onClick={() => setActiveTab('language')}
-                                    className="flex items-center gap-2"
-                                >
-                                    <Icon name="languages" />
-                                    Language Helper
-                                </Button>
-                            </div>
-                        </CardHeader>
-
-                        <CardContent>
-                            {activeTab === 'itinerary' && (
-                                <div className="space-y-6">
-                                    <h2 className="text-xl font-bold">Travel Plans</h2>
-                                    
-                                    <Card>
-                                        <CardHeader>
-                                            <CardTitle>Add New Itinerary</CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <form onSubmit={handleItinerarySubmit} className="space-y-4">
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <div className="space-y-2">
-                                                        <Label htmlFor="destination">Destination</Label>
-                                                        <Input
-                                                            id="destination"
-                                                            value={newItinerary.destination}
-                                                            onChange={(e) => setNewItinerary({...newItinerary, destination: e.target.value})}
-                                                            required
-                                                        />
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        <Label htmlFor="startDate">Start Date</Label>
-                                                        <Input
-                                                            id="startDate"
-                                                            type="date"
-                                                            value={newItinerary.startDate}
-                                                            onChange={(e) => setNewItinerary({...newItinerary, startDate: e.target.value})}
-                                                            required
-                                                        />
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        <Label htmlFor="endDate">End Date</Label>
-                                                        <Input
-                                                            id="endDate"
-                                                            type="date"
-                                                            value={newItinerary.endDate}
-                                                            onChange={(e) => setNewItinerary({...newItinerary, endDate: e.target.value})}
-                                                            required
-                                                        />
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        <Label>Travel Mode</Label>
-                                                        <Select
-                                                            value={newItinerary.travelMode}
-                                                            onValueChange={(value) => setNewItinerary({...newItinerary, travelMode: value})}
-                                                        >
-                                                            <SelectItem value="train">Train</SelectItem>
-                                                            <SelectItem value="bus">Bus</SelectItem>
-                                                            <SelectItem value="flight">Flight</SelectItem>
-                                                            <SelectItem value="self-drive">Self Drive</SelectItem>
-                                                        </Select>
-                                                    </div>
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="activities">Activities</Label>
-                                                    <Textarea
-                                                        id="activities"
-                                                        value={newItinerary.activities}
-                                                        onChange={(e) => setNewItinerary({...newItinerary, activities: e.target.value})}
-                                                        rows={3}
-                                                        placeholder="List your planned activities..."
-                                                    />
-                                                </div>
-                                                <Button type="submit">Add Itinerary</Button>
-                                            </form>
-                                        </CardContent>
-                                    </Card>
-
-                                    <Card>
-                                        <CardHeader>
-                                            <CardTitle>Your Itineraries</CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
-                                            {itineraries.length === 0 ? (
-                                                <p className="text-gray-500">No itineraries added yet.</p>
-                                            ) : (
-                                                <div className="space-y-4">
-                                                    {itineraries.map((itinerary) => (
-                                                        <Card key={itinerary.id}>
-                                                            <CardHeader>
-                                                                <CardTitle>{itinerary.destination}</CardTitle>
-                                                                <CardDescription>
-                                                                    {new Date(itinerary.startDate).toLocaleDateString()} to {new Date(itinerary.endDate).toLocaleDateString()} • {itinerary.travelMode}
-                                                                </CardDescription>
-                                                            </CardHeader>
-                                                            <CardContent>
-                                                                <p className="whitespace-pre-line">{itinerary.activities}</p>
-                                                            </CardContent>
-                                                        </Card>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </CardContent>
-                                    </Card>
-                                </div>
-                            )}
-
-                            {activeTab === 'budget' && (
-                                <div className="space-y-6">
-                                    <Card>
-                                        <CardHeader>
-                                            <CardTitle>Budget Overview</CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                                                <div className="p-4 bg-blue-50 rounded-lg">
-                                                    <h3 className="font-semibold text-blue-800">Total Budget</h3>
-                                                    <p className="text-2xl font-bold">{formatCurrency(budget, baseCurrency)}</p>
-                                                    <Input
-                                                        type="number"
-                                                        placeholder="Set budget"
-                                                        value={budget || ''}
-                                                        onChange={(e) => setBudget(Number(e.target.value))}
-                                                        className="mt-2"
-                                                    />
-                                                </div>
-                                                <div className="p-4 bg-red-50 rounded-lg">
-                                                    <h3 className="font-semibold text-red-800">Total Expenses</h3>
-                                                    <p className="text-2xl font-bold">{formatCurrency(totalExpenses, baseCurrency)}</p>
-                                                </div>
-                                                <div className={`p-4 rounded-lg ${remainingBudget >= 0 ? 'bg-green-50' : 'bg-yellow-50'}`}>
-                                                    <h3 className={`font-semibold ${remainingBudget >= 0 ? 'text-green-800' : 'text-yellow-800'}`}>
-                                                        Remaining Budget
-                                                    </h3>
-                                                    <p className="text-2xl font-bold">{formatCurrency(remainingBudget, baseCurrency)}</p>
-                                                </div>
-                                            </div>
-
-                                            <Card>
-                                                <CardHeader>
-                                                    <CardTitle>Add New Expense</CardTitle>
-                                                </CardHeader>
-                                                <CardContent>
-                                                    <form onSubmit={handleExpenseSubmit} className="space-y-4">
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                            <div className="space-y-2">
-                                                                <Label htmlFor="amount">Amount</Label>
-                                                                <Input
-                                                                    id="amount"
-                                                                    type="number"
-                                                                    value={newExpense.amount || ''}
-                                                                    onChange={(e) => setNewExpense({...newExpense, amount: Number(e.target.value)})}
-                                                                    min="0"
-                                                                    step="10"
-                                                                    required
-                                                                />
-                                                            </div>
-                                                            <div className="space-y-2">
-                                                                <Label htmlFor="category">Category</Label>
-                                                                <Select
-                                                                    value={newExpense.category}
-                                                                    onValueChange={(value) => setNewExpense({...newExpense, category: value})}
-                                                                >
-                                                                    <SelectItem value="food">Food</SelectItem>
-                                                                    <SelectItem value="transport">Transport</SelectItem>
-                                                                    <SelectItem value="accommodation">Accommodation</SelectItem>
-                                                                    <SelectItem value="shopping">Shopping</SelectItem>
-                                                                    <SelectItem value="sightseeing">Sightseeing</SelectItem>
-                                                                    <SelectItem value="other">Other</SelectItem>
-                                                                </Select>
-                                                            </div>
-                                                            <div className="space-y-2">
-                                                                <Label htmlFor="description">Description</Label>
-                                                                <Input
-                                                                    id="description"
-                                                                    value={newExpense.description}
-                                                                    onChange={(e) => setNewExpense({...newExpense, description: e.target.value})}
-                                                                />
-                                                            </div>
-                                                            <div className="space-y-2">
-                                                                <Label htmlFor="date">Date</Label>
-                                                                <Input
-                                                                    id="date"
-                                                                    type="date"
-                                                                    value={newExpense.date}
-                                                                    onChange={(e) => setNewExpense({...newExpense, date: e.target.value})}
-                                                                    required
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                        <Button type="submit">Add Expense</Button>
-                                                    </form>
-                                                </CardContent>
-                                            </Card>
-                                        </CardContent>
-                                    </Card>
-
-                                    <Card>
-                                        <CardHeader>
-                                            <CardTitle>Expense History</CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
-                                            {expenses.length === 0 ? (
-                                                <p className="text-gray-500">No expenses recorded yet.</p>
-                                            ) : (
-                                                <div className="space-y-4">
-                                                    {expenses.map((expense) => (
-                                                        <Card key={expense.id}>
-                                                            <CardHeader>
-                                                                <CardTitle>{formatCurrency(expense.convertedAmount, baseCurrency)}</CardTitle>
-                                                                <CardDescription>
-                                                                    {expense.category} • {expense.date} • {expense.paymentMethod}
-                                                                </CardDescription>
-                                                            </CardHeader>
-                                                            {expense.description && (
-                                                                <CardContent>
-                                                                    <p>{expense.description}</p>
-                                                                </CardContent>
-                                                            )}
-                                                        </Card>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </CardContent>
-                                    </Card>
-                                </div>
-                            )}
-
-                            {activeTab === 'connections' && (
-                                <div className="space-y-6">
-                                    <Card>
-                                        <CardHeader>
-                                            <CardTitle>Your Connections</CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
-                                            {connections.length === 0 ? (
-                                                <p className="text-gray-500">No connections added yet.</p>
-                                            ) : (
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    {connections.map((connection) => (
-                                                        <Card key={connection.id}>
-                                                            <CardHeader>
-                                                                <div className="flex justify-between items-start">
-                                                                    <div>
-                                                                        <CardTitle>{connection.name}</CardTitle>
-                                                                        <CardDescription className="capitalize">
-                                                                            {connection.type} • {connection.location}
-                                                                        </CardDescription>
-                                                                    </div>
-                                                                    <Badge variant="outline">{connection.type}</Badge>
-                                                                </div>
-                                                            </CardHeader>
-                                                            <CardContent>
-                                                                <div className="space-y-2">
-                                                                    <div>
-                                                                        <p className="font-medium">Contact:</p>
-                                                                        <p>{connection.contact}</p>
-                                                                    </div>
-                                                                    {connection.notes && (
-                                                                        <div>
-                                                                            <p className="font-medium">Notes:</p>
-                                                                            <p>{connection.notes}</p>
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            </CardContent>
-                                                        </Card>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </CardContent>
-                                    </Card>
-                                </div>
-                            )}
-
-                            {activeTab === 'language' && (
-                                <div className="space-y-6">
-                                    <Card>
-                                        <CardHeader>
-                                            <CardTitle>Your Phrasebook</CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
-                                            {phrases.length === 0 ? (
-                                                <p className="text-gray-500">No phrases added yet.</p>
-                                            ) : (
-                                                <div className="space-y-4">
-                                                    {['greetings', 'directions', 'food', 'emergency'].map((category) => {
-                                                        const categoryPhrases = phrases.filter(p => p.category === category);
-                                                        if (categoryPhrases.length === 0) return null;
-                                                        
-                                                        return (
-                                                            <div key={category}>
-                                                                <h3 className="font-semibold capitalize mb-2">{category}</h3>
-                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                                    {categoryPhrases.map((phrase) => (
-                                                                        <Card key={phrase.id}>
-                                                                            <CardHeader>
-                                                                                <CardTitle>{phrase.english}</CardTitle>
-                                                                            </CardHeader>
-                                                                            <CardContent>
+            container.innerHTML = state.itineraries.map(itinerary => `
+                <div class="item-card ${itinerary.status === 'rescheduled' ? 'rescheduled' : ''}">
+                    <div class="item-header">
+                        <div>
