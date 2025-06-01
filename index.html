@@ -27,7 +27,33 @@
             border-radius: 1rem;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .auth-container {
+            max-width: 400px;
+            margin: 2rem auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+        
+        .auth-header {
+            padding: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+        
+        .auth-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .auth-content {
+            padding: 2rem;
         }
         
         .header {
@@ -35,18 +61,6 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             position: relative;
-            overflow: hidden;
-        }
-        
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-            opacity: 0.1;
         }
         
         .header-title {
@@ -54,21 +68,45 @@
             align-items: center;
             gap: 0.75rem;
             margin-bottom: 0.5rem;
-            position: relative;
-            z-index: 1;
         }
         
         .header-title h1 {
             font-size: 2rem;
             font-weight: 700;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         
         .header-subtitle {
             opacity: 0.9;
             font-size: 1.1rem;
-            position: relative;
-            z-index: 1;
+        }
+        
+        .user-info {
+            position: absolute;
+            top: 1rem;
+            right: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-greeting {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: background 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
         
         .tabs {
@@ -76,9 +114,6 @@
             gap: 0.5rem;
             margin-top: 1.5rem;
             overflow-x: auto;
-            padding-bottom: 0.5rem;
-            position: relative;
-            z-index: 1;
         }
         
         .tab-button {
@@ -92,25 +127,20 @@
             transition: all 0.3s ease;
             white-space: nowrap;
             font-weight: 500;
-            backdrop-filter: blur(10px);
         }
         
         .tab-button.active {
             background: rgba(255, 255, 255, 0.25);
             color: white;
-            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .tab-button:not(.active) {
             background: rgba(255, 255, 255, 0.1);
             color: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        .tab-button:not(.active):hover {
+        .tab-button:hover {
             background: rgba(255, 255, 255, 0.2);
-            color: white;
             transform: translateY(-2px);
         }
         
@@ -120,16 +150,10 @@
         
         .tab-content {
             display: none;
-            animation: fadeIn 0.5s ease-in-out;
         }
         
         .tab-content.active {
             display: block;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
         }
         
         .form-section {
@@ -138,15 +162,14 @@
             border-radius: 1rem;
             margin-bottom: 2rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
         }
         
         .form-section-header {
             padding: 1.25rem;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            background: #f8fafc;
             font-weight: 600;
             font-size: 1.1rem;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid #e2e8f0;
         }
         
         .form-section-content {
@@ -155,12 +178,11 @@
         
         .form-grid {
             display: grid;
-            grid-template-columns: 1fr;
             gap: 1.25rem;
         }
         
         .form-grid.md-2 {
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         }
         
         .form-group {
@@ -180,37 +202,17 @@
             border: 2px solid #e5e7eb;
             border-radius: 0.5rem;
             font-size: 0.9rem;
-            transition: all 0.3s ease;
+            transition: border-color 0.3s ease;
         }
         
         .form-input:focus, .form-select:focus, .form-textarea:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         
         .form-textarea {
             resize: vertical;
             min-height: 100px;
-        }
-        
-        .radio-group {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
-        }
-        
-        .radio-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            transition: background-color 0.2s;
-        }
-        
-        .radio-item:hover {
-            background-color: #f3f4f6;
         }
         
         .btn {
@@ -220,7 +222,8 @@
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s ease;
-            font-size: 0.9rem;
+            width: 100%;
+            margin-bottom: 1rem;
         }
         
         .btn-primary {
@@ -234,13 +237,31 @@
         }
         
         .btn-secondary {
-            background-color: #f3f4f6;
+            background: #f8fafc;
             color: #374151;
-            border: 1px solid #d1d5db;
+            border: 2px solid #e5e7eb;
         }
         
         .btn-secondary:hover {
-            background-color: #e5e7eb;
+            background: #f1f5f9;
+            border-color: #d1d5db;
+        }
+        
+        .auth-toggle {
+            text-align: center;
+            margin-top: 1rem;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        .auth-toggle a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .auth-toggle a:hover {
+            text-decoration: underline;
         }
         
         .stats-grid {
@@ -254,28 +275,11 @@
             padding: 1.5rem;
             border-radius: 1rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
         }
         
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .stat-card.blue {
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-        }
-        
-        .stat-card.red {
-            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-        }
-        
-        .stat-card.green {
-            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-        }
-        
-        .stat-card.yellow {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-        }
+        .stat-card.blue { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); }
+        .stat-card.red { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); }
+        .stat-card.green { background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); }
         
         .stat-title {
             font-weight: 600;
@@ -306,18 +310,6 @@
             transform: translateY(-2px);
         }
         
-        .item-card.rescheduled {
-            border-color: #fbbf24;
-            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-        }
-        
-        .item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 0.75rem;
-        }
-        
         .item-title {
             font-weight: 600;
             margin-bottom: 0.25rem;
@@ -327,54 +319,6 @@
         .item-subtitle {
             font-size: 0.875rem;
             color: #6b7280;
-        }
-        
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            padding: 0.25rem 0.75rem;
-            background-color: #fbbf24;
-            color: #92400e;
-            border-radius: 0.5rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .currency-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 0.75rem;
-        }
-        
-        .currency-card {
-            padding: 1rem;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.75rem;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-        
-        .currency-card:hover {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            transform: translateY(-2px);
-        }
-        
-        .currency-code {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-        
-        .currency-rate {
-            font-size: 0.875rem;
-            font-weight: 700;
-            color: #667eea;
         }
         
         .map-placeholder {
@@ -389,11 +333,438 @@
             font-weight: 500;
         }
         
-        .alert {
-            padding: 1rem;
-            border-radius: 0.75rem;
-            margin-bottom: 1rem;
-            font-weight: 500;
+        .hidden {
+            display: none !important;
         }
         
-        .alert.
+        .personal-welcome {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .personal-welcome h3 {
+            color: #92400e;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .personal-welcome p {
+            color: #b45309;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .form-grid.md-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .user-info {
+                position: static;
+                justify-content: center;
+                margin-top: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Authentication Screen -->
+    <div id="auth-screen" class="auth-container">
+        <div class="auth-header">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 1rem;">
+                <i data-lucide="globe" style="width: 2rem; height: 2rem;"></i>
+                <h1>Smart Travel Companion</h1>
+            </div>
+            <p style="opacity: 0.9;">Sign in to access your personalized travel dashboard</p>
+        </div>
+        
+        <div class="auth-content">
+            <!-- Sign In Form -->
+            <div id="signin-form">
+                <form id="signin">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" name="email" required placeholder="your@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-input" name="password" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Sign In</button>
+                </form>
+                <div class="auth-toggle">
+                    Don't have an account? <a href="#" onclick="toggleAuthMode()">Sign Up</a>
+                </div>
+            </div>
+            
+            <!-- Sign Up Form -->
+            <div id="signup-form" class="hidden">
+                <form id="signup">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-input" name="name" required placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" name="email" required placeholder="your@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-input" name="password" required placeholder="••••••••">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Preferred Travel Style</label>
+                        <select class="form-select" name="travelStyle">
+                            <option value="adventure">Adventure</option>
+                            <option value="relaxation">Relaxation</option>
+                            <option value="cultural">Cultural</option>
+                            <option value="business">Business</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Account</button>
+                </form>
+                <div class="auth-toggle">
+                    Already have an account? <a href="#" onclick="toggleAuthMode()">Sign In</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="main-app" class="container hidden">
+        <div class="header">
+            <div class="user-info">
+                <div class="user-greeting">Welcome back, <span id="user-name">Traveler</span>!</div>
+                <button class="logout-btn" onclick="logout()">
+                    <i data-lucide="log-out" style="width: 1rem; height: 1rem;"></i>
+                    Logout
+                </button>
+            </div>
+            
+            <div class="header-title">
+                <i data-lucide="globe" style="width: 2rem; height: 2rem;"></i>
+                <h1>Smart Travel Companion</h1>
+            </div>
+            <p class="header-subtitle">Your personalized intelligent travel assistant</p>
+            
+            <div class="tabs">
+                <button class="tab-button active" data-tab="dashboard">
+                    <i data-lucide="home"></i>
+                    Dashboard
+                </button>
+                <button class="tab-button" data-tab="itinerary">
+                    <i data-lucide="map-pin"></i>
+                    Itinerary
+                </button>
+                <button class="tab-button" data-tab="navigation">
+                    <i data-lucide="map"></i>
+                    Navigation
+                </button>
+                <button class="tab-button" data-tab="budget">
+                    <i data-lucide="dollar-sign"></i>
+                    Smart Budget
+                </button>
+                <button class="tab-button" data-tab="connections">
+                    <i data-lucide="users"></i>
+                    Local Connections
+                </button>
+                <button class="tab-button" data-tab="language">
+                    <i data-lucide="languages"></i>
+                    Language Helper
+                </button>
+                <button class="tab-button" data-tab="profile">
+                    <i data-lucide="user"></i>
+                    Profile
+                </button>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content active">
+                <div id="personal-welcome" class="personal-welcome">
+                    <h3>Welcome back, <span id="dashboard-user-name">Traveler</span>!</h3>
+                    <p>Here's a quick overview of your travel activities and personalized recommendations.</p>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card blue">
+                        <div class="stat-title">Total Trips</div>
+                        <div class="stat-value" id="total-trips">0</div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-title">Countries Visited</div>
+                        <div class="stat-value" id="countries-visited">0</div>
+                    </div>
+                    <div class="stat-card red">
+                        <div class="stat-title">Total Spent</div>
+                        <div class="stat-value" id="total-spent">₹0</div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-header">Recent Activity</div>
+                    <div class="form-section-content">
+                        <div id="recent-activity" class="item-list">
+                            <p style="color: #6b7280;">Start planning your first trip to see activity here!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Itinerary Tab -->
+            <div id="itinerary" class="tab-content">
+                <div class="form-section">
+                    <div class="form-section-header">Add New Itinerary</div>
+                    <div class="form-section-content">
+                        <form id="itinerary-form">
+                            <div class="form-grid md-2">
+                                <div class="form-group">
+                                    <label class="form-label">Destination</label>
+                                    <input type="text" class="form-input" name="destination" placeholder="e.g., Paris, France" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Travel Mode</label>
+                                    <select class="form-select" name="travelMode">
+                                        <option value="train">Train</option>
+                                        <option value="bus">Bus</option>
+                                        <option value="flight">Flight</option>
+                                        <option value="self-drive">Self Drive</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Start Date</label>
+                                    <input type="date" class="form-input" name="startDate" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">End Date</label>
+                                    <input type="date" class="form-input" name="endDate" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Activities</label>
+                                <textarea class="form-textarea" name="activities" placeholder="Describe your planned activities..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Itinerary</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-header">Your Itineraries</div>
+                    <div class="form-section-content">
+                        <div id="itinerary-list" class="item-list">
+                            <p style="color: #6b7280;">No itineraries added yet. Add your first travel plan above!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Tab -->
+            <div id="navigation" class="tab-content">
+                <div class="form-section">
+                    <div class="form-section-header">Navigation & Maps</div>
+                    <div class="form-section-content">
+                        <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                            <input type="text" class="form-input" placeholder="Enter destination..." style="flex: 1;" id="destination-input">
+                            <button class="btn btn-primary" onclick="getCurrentLocation()" style="width: auto;">Get Current Location</button>
+                        </div>
+                        <div id="location-display" class="hidden" style="padding: 1rem; background: #f0fdf4; border-radius: 0.5rem; margin-bottom: 1rem; color: #166534;">
+                            Current Location: <span id="coordinates"></span>
+                        </div>
+                        <div class="map-placeholder">
+                            <p>Interactive Map Integration Available</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Budget Tab -->
+            <div id="budget" class="tab-content">
+                <div class="form-section">
+                    <div class="form-section-header">Budget Overview</div>
+                    <div class="form-section-content">
+                        <div class="stats-grid">
+                            <div class="stat-card blue">
+                                <div class="stat-title">Total Budget</div>
+                                <div class="stat-value" id="total-budget">₹50,000</div>
+                            </div>
+                            <div class="stat-card red">
+                                <div class="stat-title">Total Expenses</div>
+                                <div class="stat-value" id="total-expenses">₹0</div>
+                            </div>
+                            <div class="stat-card green">
+                                <div class="stat-title">Remaining Budget</div>
+                                <div class="stat-value" id="remaining-budget">₹50,000</div>
+                            </div>
+                        </div>
+
+                        <div class="form-grid md-2">
+                            <div class="form-section">
+                                <div class="form-section-header">Add New Expense</div>
+                                <div class="form-section-content">
+                                    <form id="expense-form">
+                                        <div class="form-group">
+                                            <label class="form-label">Amount (₹)</label>
+                                            <input type="number" class="form-input" name="amount" placeholder="1000" required min="0">
+                                        </div>
+                                        <div class="form-grid md-2">
+                                            <div class="form-group">
+                                                <label class="form-label">Category</label>
+                                                <select class="form-select" name="category">
+                                                    <option value="food">Food</option>
+                                                    <option value="transport">Transport</option>
+                                                    <option value="accommodation">Accommodation</option>
+                                                    <option value="shopping">Shopping</option>
+                                                    <option value="sightseeing">Sightseeing</option>
+                                                    <option value="other">Other</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label">Date</label>
+                                                <input type="date" class="form-input" name="date" required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Description</label>
+                                            <input type="text" class="form-input" name="description" placeholder="e.g., Dinner at local restaurant">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Add Expense</button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <div class="form-section-header">Recent Expenses</div>
+                                <div class="form-section-content">
+                                    <div id="expense-list" class="item-list">
+                                        <p style="color: #6b7280;">No expenses recorded yet.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Connections Tab -->
+            <div id="connections" class="tab-content">
+                <div class="form-section">
+                    <div class="form-section-header">Add New Connection</div>
+                    <div class="form-section-content">
+                        <form id="connection-form">
+                            <div class="form-grid md-2">
+                                <div class="form-group">
+                                    <label class="form-label">Name</label>
+                                    <input type="text" class="form-input" name="name" placeholder="Contact Name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Location</label>
+                                    <input type="text" class="form-input" name="location" placeholder="City, Country" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Contact</label>
+                                    <input type="text" class="form-input" name="contact" placeholder="Phone/Email" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Type</label>
+                                    <select class="form-select" name="type">
+                                        <option value="guide">Guide</option>
+                                        <option value="driver">Driver</option>
+                                        <option value="host">Host</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Notes</label>
+                                <textarea class="form-textarea" name="notes" placeholder="Additional information..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Connection</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-header">Your Connections</div>
+                    <div class="form-section-content">
+                        <div id="connection-list" class="item-list">
+                            <p style="color: #6b7280;">No connections added yet.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Language Tab -->
+            <div id="language" class="tab-content">
+                <div class="form-section">
+                    <div class="form-section-header">Add New Phrase</div>
+                    <div class="form-section-content">
+                        <form id="phrase-form">
+                            <div class="form-grid md-2">
+                                <div class="form-group">
+                                    <label class="form-label">English</label>
+                                    <input type="text" class="form-input" name="english" placeholder="Hello" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Local Language</label>
+                                    <input type="text" class="form-input" name="local" placeholder="Bonjour" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Pronunciation</label>
+                                    <input type="text" class="form-input" name="pronunciation" placeholder="bon-ZHOOR" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Category</label>
+                                    <select class="form-select" name="category">
+                                        <option value="greetings">Greetings</option>
+                                        <option value="directions">Directions</option>
+                                        <option value="food">Food</option>
+                                        <option value="emergency">Emergency</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Phrase</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-header">Phrase Book</div>
+                    <div class="form-section-content">
+                        <div id="phrase-list" class="item-list">
+                            <p style="color: #6b7280;">No phrases added yet.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Tab -->
+            <div id="profile" class="tab-content">
+                <div class="form-section">
+                    <div class="form-section-header">Profile Settings</div>
+                    <div class="form-section-content">
+                        <form id="profile-form">
+                            <div class="form-grid md-2">
+                                <div class="form-group">
+                                    <label class="form-label">Full Name</label>
+                                    <input type="text" class="form-input" id="profile-name" name="name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-input" id="profile-email" name="email" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Preferred Travel Style</label>
+                                    <select class="form-select" id="profile-travel-style" name="travelStyle">
+                                        <option value="adventure">Adventure</option>
+                                        <option value="relaxation">Relaxation</option>
+                                        <option value="cultural">Cultural</option>
+                                        <option value="business">Business</option>
+                                    </select>
