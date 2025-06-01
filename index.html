@@ -2,116 +2,595 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Travel App Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beyond the Horizon - Travel Planning Made Easy</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f6f9fb; margin: 0; padding: 0; }
-        .container { max-width: 400px; margin: 60px auto; background: #fff; padding: 2em; border-radius: 10px; box-shadow: 0 2px 8px #0001; }
-        h2 { margin-top: 0; }
-        .hidden { display: none; }
-        .toggle-link { color: #007bff; cursor: pointer; text-decoration: underline; }
-        .btn { background: #007bff; color: #fff; border: none; padding: 0.7em 1.5em; border-radius: 5px; cursor: pointer; }
-        .tabs { display: flex; gap: 1em; margin-bottom: 1em; }
-        .tab-btn { background: #eee; border: none; padding: 0.5em 1em; border-radius: 5px; cursor: pointer; }
-        .tab-btn.active { background: #007bff; color: #fff; }
-        .logout { float: right; cursor: pointer; color: #e74c3c; font-size: 0.9em; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 450px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .auth-header {
+            background: linear-gradient(135deg, #ff6b6b, #ffa726);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .auth-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .auth-header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .auth-content {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+        }
+
+        .btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .toggle-text {
+            text-align: center;
+            color: #64748b;
+            margin-top: 1rem;
+        }
+
+        .toggle-link {
+            color: #667eea;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .toggle-link:hover {
+            color: #764ba2;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Main App Styles */
+        .app-header {
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            color: white;
+            padding: 1.5rem 2rem;
+            position: relative;
+        }
+
+        .user-welcome {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .user-subtitle {
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 1.5rem;
+            right: 2rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .tabs {
+            display: flex;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 1rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #64748b;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab-btn.active {
+            color: #0072ff;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: #f8fafc;
+            color: #475569;
+        }
+
+        .tab-content {
+            padding: 2rem;
+            min-height: 300px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #ff9a9e, #fecfef);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(255, 154, 158, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .quick-action {
+            background: white;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .quick-action:hover {
+            border-color: #0072ff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 114, 255, 0.15);
+        }
+
+        .quick-action-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .itinerary-item {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #00c6ff;
+        }
+
+        .itinerary-date {
+            font-weight: 600;
+            color: #0072ff;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .itinerary-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .itinerary-description {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .add-btn {
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            box-shadow: 0 8px 25px rgba(0, 114, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .add-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .navigation-feature {
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .add-btn {
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
     <!-- Auth Screen -->
-    <div class="container" id="auth-screen">
+    <div id="auth-screen" class="container fade-in">
+        <div class="auth-header">
+            <h1>🌅 Beyond the Horizon</h1>
+            <p>A one-time solution for all weathers and itineraries</p>
+        </div>
+        
         <!-- Sign In Form -->
-        <form id="signin-form">
-            <h2>Sign In</h2>
-            <input type="email" placeholder="Email" required style="width:100%;padding:0.5em;margin-bottom:1em;"><br>
-            <input type="password" placeholder="Password" required style="width:100%;padding:0.5em;margin-bottom:1em;"><br>
-            <button type="submit" class="btn">Sign In</button>
-            <p style="margin-top:1em;">Don't have an account?
-                <span class="toggle-link" onclick="toggleAuthMode()">Sign Up</span>
-            </p>
-        </form>
-        <!-- Sign Up Form (hidden by default) -->
-        <form id="signup-form" class="hidden">
-            <h2>Sign Up</h2>
-            <input type="text" name="name" placeholder="Name" required style="width:100%;padding:0.5em;margin-bottom:1em;"><br>
-            <input type="email" placeholder="Email" required style="width:100%;padding:0.5em;margin-bottom:1em;"><br>
-            <input type="password" placeholder="Password" required style="width:100%;padding:0.5em;margin-bottom:1em;"><br>
-            <button type="submit" class="btn">Create Account</button>
-            <p style="margin-top:1em;">Already have an account?
-                <span class="toggle-link" onclick="toggleAuthMode()">Sign In</span>
-            </p>
-        </form>
+        <div id="signin-form" class="auth-content">
+            <form id="signin-form-element">
+                <div class="form-group">
+                    <input type="email" placeholder="Email address" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn">Sign In</button>
+            </form>
+            <div class="toggle-text">
+                Don't have an account? 
+                <span class="toggle-link" onclick="toggleAuthMode()">Create one</span>
+            </div>
+        </div>
+        
+        <!-- Sign Up Form -->
+        <div id="signup-form" class="auth-content hidden">
+            <form id="signup-form-element">
+                <div class="form-group">
+                    <input type="text" name="name" placeholder="Full Name" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" placeholder="Email address" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" placeholder="Create Password" required>
+                </div>
+                <button type="submit" class="btn">Create Account</button>
+            </form>
+            <div class="toggle-text">
+                Already have an account? 
+                <span class="toggle-link" onclick="toggleAuthMode()">Sign in</span>
+            </div>
+        </div>
     </div>
 
-    <!-- Main App (hidden by default) -->
-    <div class="container hidden" id="main-app">
-        <span class="logout" onclick="logout()">Log out</span>
-        <h2>Welcome, <span id="user-name">Traveler</span>!</h2>
+    <!-- Main App -->
+    <div id="main-app" class="container hidden">
+        <div class="app-header">
+            <button class="logout-btn" onclick="logout()">Logout</button>
+            <div class="user-welcome">Welcome back, <span id="user-name">Traveler</span>!</div>
+            <div class="user-subtitle">Ready for your next adventure?</div>
+        </div>
+        
         <div class="tabs">
-            <button class="tab-btn active" onclick="showTab('dashboard')">Dashboard</button>
-            <button class="tab-btn" onclick="showTab('itinerary')">Itinerary</button>
-            <button class="tab-btn" onclick="showTab('navigation')">Navigation</button>
+            <button class="tab-btn active" onclick="showTab('dashboard')">🏠 Dashboard</button>
+            <button class="tab-btn" onclick="showTab('itinerary')">📋 Itinerary</button>
+            <button class="tab-btn" onclick="showTab('navigation')">🗺️ Navigate</button>
         </div>
-        <div id="dashboard-tab">
-            <p>This is your dashboard. Plan your trip here!</p>
+        
+        <!-- Dashboard Tab -->
+        <div id="dashboard-tab" class="tab-content">
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Trips Planned</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">12</div>
+                    <div class="stat-label">Places Visited</div>
+                </div>
+            </div>
+            
+            <h3 style="margin-bottom: 1rem; color: #1e293b;">Quick Actions</h3>
+            <div class="quick-action" onclick="alert('Plan new trip feature coming soon!')">
+                <div class="quick-action-icon">✈️</div>
+                <div>
+                    <div style="font-weight: 600;">Plan New Trip</div>
+                    <div style="color: #64748b; font-size: 0.9rem;">Start planning your next adventure</div>
+                </div>
+            </div>
+            
+            <div class="quick-action" onclick="alert('Find destinations feature coming soon!')">
+                <div class="quick-action-icon">🌍</div>
+                <div>
+                    <div style="font-weight: 600;">Discover Destinations</div>
+                    <div style="color: #64748b; font-size: 0.9rem;">Explore trending travel spots</div>
+                </div>
+            </div>
+            
+            <div class="quick-action" onclick="alert('View travel history feature coming soon!')">
+                <div class="quick-action-icon">📸</div>
+                <div>
+                    <div style="font-weight: 600;">Travel Memories</div>
+                    <div style="color: #64748b; font-size: 0.9rem;">Browse your past adventures</div>
+                </div>
+            </div>
         </div>
-        <div id="itinerary-tab" class="hidden">
-            <p>Your itinerary will appear here.</p>
+        
+        <!-- Itinerary Tab -->
+        <div id="itinerary-tab" class="tab-content hidden">
+            <h3 style="margin-bottom: 1.5rem; color: #1e293b;">Your Upcoming Adventures</h3>
+            
+            <div class="itinerary-item">
+                <div class="itinerary-date">March 15-22, 2025</div>
+                <div class="itinerary-title">🗼 Paris, France</div>
+                <div class="itinerary-description">Explore the City of Light - Eiffel Tower, Louvre Museum, and charming cafés</div>
+            </div>
+            
+            <div class="itinerary-item">
+                <div class="itinerary-date">April 5-12, 2025</div>
+                <div class="itinerary-title">🏯 Tokyo, Japan</div>
+                <div class="itinerary-description">Experience traditional culture meets modern innovation</div>
+            </div>
+            
+            <div class="itinerary-item">
+                <div class="itinerary-date">May 20-27, 2025</div>
+                <div class="itinerary-title">🏛️ Rome, Italy</div>
+                <div class="itinerary-description">Walk through ancient history - Colosseum, Vatican, and authentic pasta</div>
+            </div>
+            
+            <button class="add-btn" onclick="alert('Add new trip feature coming soon!')">+</button>
         </div>
-        <div id="navigation-tab" class="hidden">
-            <p>Navigation tools coming soon.</p>
+        
+        <!-- Navigation Tab -->
+        <div id="navigation-tab" class="tab-content hidden">
+            <div class="navigation-feature">
+                <div class="feature-icon">🗺️</div>
+                <h3 style="margin-bottom: 1rem;">Smart Navigation</h3>
+                <p style="color: #64748b; margin-bottom: 1.5rem;">Get real-time directions and discover hidden gems along your route</p>
+                <button class="btn" style="width: auto; padding: 0.8rem 2rem;" onclick="alert('Navigation feature coming soon!')">
+                    Open Maps
+                </button>
+            </div>
+            
+            <div class="navigation-feature">
+                <div class="feature-icon">📱</div>
+                <h3 style="margin-bottom: 1rem;">Offline Access</h3>
+                <p style="color: #64748b; margin-bottom: 1.5rem;">Download maps and access your itinerary even without internet</p>
+                <button class="btn" style="width: auto; padding: 0.8rem 2rem;" onclick="alert('Offline feature coming soon!')">
+                    Download Maps
+                </button>
+            </div>
         </div>
     </div>
 
     <script>
-    // Toggle between Sign In and Sign Up forms
-    function toggleAuthMode() {
-        document.getElementById('signin-form').classList.toggle('hidden');
-        document.getElementById('signup-form').classList.toggle('hidden');
-    }
+        let currentUser = null;
 
-    // Handle Sign In
-    document.getElementById('signin-form').onsubmit = function(e) {
-        e.preventDefault();
-        document.getElementById('auth-screen').classList.add('hidden');
-        document.getElementById('main-app').classList.remove('hidden');
-        document.getElementById('user-name').textContent = "Traveler";
-    };
-
-    // Handle Sign Up
-    document.getElementById('signup-form').onsubmit = function(e) {
-        e.preventDefault();
-        document.getElementById('auth-screen').classList.add('hidden');
-        document.getElementById('main-app').classList.remove('hidden');
-        var name = this.elements['name'].value;
-        document.getElementById('user-name').textContent = name || "Traveler";
-    };
-
-    // Logout function
-    function logout() {
-        document.getElementById('main-app').classList.add('hidden');
-        document.getElementById('auth-screen').classList.remove('hidden');
-        document.getElementById('signin-form').classList.remove('hidden');
-        document.getElementById('signup-form').classList.add('hidden');
-    }
-
-    // Tab switching logic
-    function showTab(tab) {
-        // Hide all tabs
-        document.getElementById('dashboard-tab').classList.add('hidden');
-        document.getElementById('itinerary-tab').classList.add('hidden');
-        document.getElementById('navigation-tab').classList.add('hidden');
-        // Remove active from all buttons
-        var btns = document.getElementsByClassName('tab-btn');
-        for (var i = 0; i < btns.length; i++) {
-            btns[i].classList.remove('active');
+        // Toggle between Sign In and Sign Up forms with animation
+        function toggleAuthMode() {
+            const signinForm = document.getElementById('signin-form');
+            const signupForm = document.getElementById('signup-form');
+            
+            signinForm.classList.toggle('hidden');
+            signupForm.classList.toggle('hidden');
         }
-        // Show selected tab
-        document.getElementById(tab + '-tab').classList.remove('hidden');
-        // Set active button
-        if (tab === 'dashboard') btns[0].classList.add('active');
-        if (tab === 'itinerary') btns[1].classList.add('active');
-        if (tab === 'navigation') btns[2].classList.add('active');
-    }
+
+        // Remove the duplicate event listeners since they're now in DOMContentLoaded
+
+        function showMainApp() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            document.getElementById('main-app').classList.add('fade-in');
+            document.getElementById('user-name').textContent = currentUser.name || "Traveler";
+        }
+
+        // Logout function
+        function logout() {
+            currentUser = null;
+            document.getElementById('main-app').classList.add('hidden');
+            document.getElementById('auth-screen').classList.remove('hidden');
+            document.getElementById('auth-screen').classList.add('fade-in');
+            
+            // Reset forms
+            document.getElementById('signin-form').classList.remove('hidden');
+            document.getElementById('signup-form').classList.add('hidden');
+            document.getElementById('signin-form-element').reset();
+            document.getElementById('signup-form-element').reset();
+        }
+
+        // Enhanced tab switching with smooth transitions
+        function showTab(tab) {
+            // Hide all tabs
+            const tabs = ['dashboard', 'itinerary', 'navigation'];
+            tabs.forEach(t => {
+                document.getElementById(t + '-tab').classList.add('hidden');
+            });
+            
+            // Remove active from all buttons
+            const btns = document.getElementsByClassName('tab-btn');
+            for (let i = 0; i < btns.length; i++) {
+                btns[i].classList.remove('active');
+            }
+            
+            // Show selected tab with animation
+            const selectedTab = document.getElementById(tab + '-tab');
+            selectedTab.classList.remove('hidden');
+            selectedTab.classList.add('fade-in');
+            
+            // Set active button
+            const tabIndex = tabs.indexOf(tab);
+            if (tabIndex !== -1) {
+                btns[tabIndex].classList.add('active');
+            }
+            
+            // Remove animation class after animation completes
+            setTimeout(() => {
+                selectedTab.classList.remove('fade-in');
+            }, 500);
+        }
+
+        // Add some interactive feedback and initialize event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize form event listeners
+            const signinForm = document.getElementById('signin-form-element');
+            const signupForm = document.getElementById('signup-form-element');
+            
+            if (signinForm) {
+                signinForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const email = this.querySelector('input[type="email"]').value;
+                    currentUser = { name: email.split('@')[0], email: email };
+                    showMainApp();
+                });
+            }
+            
+            if (signupForm) {
+                signupForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const name = this.querySelector('input[name="name"]').value;
+                    const email = this.querySelector('input[type="email"]').value;
+                    currentUser = { name: name, email: email };
+                    showMainApp();
+                });
+            }
+            
+            // Add hover effects to buttons
+            const buttons = document.querySelectorAll('.btn, .quick-action, .itinerary-item');
+            buttons.forEach(button => {
+                button.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+                button.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
     </script>
 </body>
 </html>
